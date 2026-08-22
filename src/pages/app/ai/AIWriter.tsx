@@ -49,7 +49,7 @@ export default function AIWriter() {
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { tone: 'professional', language: 'en', length: 'medium' },
+    defaultValues: { topic: '', tone: 'professional', language: 'en', audience: '', length: 'medium' as const, instructions: '' },
   });
 
   const generate = async (data: FormData) => {
