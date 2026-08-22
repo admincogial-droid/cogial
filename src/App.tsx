@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 
 // ─── Public Pages ─────────────────────────────────────────────────
 import NotFound from './pages/NotFound';
-const Landing = NotFound;
+import Landing from './pages/public/Landing';
 const Features = NotFound;
 const Pricing = NotFound;
 const About = NotFound;
