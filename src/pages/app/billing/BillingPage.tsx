@@ -12,7 +12,7 @@ export default function BillingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
-  const [transactions, setTransactions] = useState<{ id: string; type: string; amount: number; description: string; created_at: string }[]>([]);
+  const [transactions, setTransactions] = useState<{ id: string; type: string; amount: number; description: string | null; created_at: string }[]>([]);
 
   useEffect(() => {
     const load = async () => {

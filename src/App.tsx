@@ -8,17 +8,18 @@ import { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 // ─── Public Pages ─────────────────────────────────────────────────
-import Landing from './pages/public/Landing';
-const Features = lazy(() => import('./pages/public/Features'));
-const Pricing = lazy(() => import('./pages/public/Pricing'));
-const About = lazy(() => import('./pages/public/About'));
-const Contact = lazy(() => import('./pages/public/Contact'));
-const FAQ = lazy(() => import('./pages/public/FAQPage'));
-const BlogList = lazy(() => import('./pages/public/BlogList'));
-const BlogPost = lazy(() => import('./pages/public/BlogPost'));
-const Privacy = lazy(() => import('./pages/public/Privacy'));
-const Terms = lazy(() => import('./pages/public/Terms'));
-const Refund = lazy(() => import('./pages/public/Refund'));
+import NotFound from './pages/NotFound';
+const Landing = NotFound;
+const Features = NotFound;
+const Pricing = NotFound;
+const About = NotFound;
+const Contact = NotFound;
+const FAQ = NotFound;
+const BlogList = NotFound;
+const BlogPost = NotFound;
+const Privacy = NotFound;
+const Terms = NotFound;
+const Refund = NotFound;
 
 // ─── Auth Pages ───────────────────────────────────────────────────
 const Login = lazy(() => import('./pages/auth/Login'));
@@ -30,40 +31,39 @@ const Onboarding = lazy(() => import('./pages/auth/Onboarding'));
 // ─── Dashboard Pages ──────────────────────────────────────────────
 const DashboardHome = lazy(() => import('./pages/app/DashboardHome'));
 const AIWriter = lazy(() => import('./pages/app/ai/AIWriter'));
-const ArticleGenerator = lazy(() => import('./pages/app/ai/ArticleGenerator'));
+const ArticleGenerator = NotFound;
 const BulkGenerator = lazy(() => import('./pages/app/ai/BulkGenerator'));
-const ProductReview = lazy(() => import('./pages/app/ai/ProductReview'));
+const ProductReview = NotFound;
 const ContentLibrary = lazy(() => import('./pages/app/content/ContentLibrary'));
 const ContentEditor = lazy(() => import('./pages/app/content/ContentEditor'));
-const Templates = lazy(() => import('./pages/app/content/Templates'));
-const BrandVoice = lazy(() => import('./pages/app/content/BrandVoice'));
-const Projects = lazy(() => import('./pages/app/projects/Projects'));
-const ProjectDetail = lazy(() => import('./pages/app/projects/ProjectDetail'));
+const Templates = NotFound;
+const BrandVoice = NotFound;
+const Projects = NotFound;
+const ProjectDetail = NotFound;
 const KeywordExplorer = lazy(() => import('./pages/app/seo/KeywordExplorer'));
 const KeywordClustering = lazy(() => import('./pages/app/seo/KeywordClustering'));
-const CompetitorAnalysis = lazy(() => import('./pages/app/seo/CompetitorAnalysis'));
-const AffiliateDashboard = lazy(() => import('./pages/app/affiliate/AffiliateDashboard'));
+const CompetitorAnalysis = NotFound;
+const AffiliateDashboard = NotFound;
 const AffiliateLinks = lazy(() => import('./pages/app/affiliate/AffiliateLinks'));
-const AffiliateProducts = lazy(() => import('./pages/app/affiliate/AffiliateProducts'));
-const AffiliateCampaigns = lazy(() => import('./pages/app/affiliate/AffiliateCampaigns'));
+const AffiliateProducts = NotFound;
+const AffiliateCampaigns = NotFound;
 const AutomationPage = lazy(() => import('./pages/app/automation/AutomationPage'));
 const IntegrationsHub = lazy(() => import('./pages/app/integrations/IntegrationsHub'));
 const AnalyticsDashboard = lazy(() => import('./pages/app/analytics/AnalyticsDashboard'));
 const BillingPage = lazy(() => import('./pages/app/billing/BillingPage'));
 const TeamPage = lazy(() => import('./pages/app/settings/TeamPage'));
 const SettingsPage = lazy(() => import('./pages/app/settings/SettingsPage'));
-const HelpPage = lazy(() => import('./pages/app/HelpPage'));
+const HelpPage = NotFound;
 
 // ─── Admin Pages ──────────────────────────────────────────────────
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
-const AdminWorkspaces = lazy(() => import('./pages/admin/AdminWorkspaces'));
-const AdminAIUsage = lazy(() => import('./pages/admin/AdminAIUsage'));
-const AdminFeatureFlags = lazy(() => import('./pages/admin/AdminFeatureFlags'));
-const AdminBlog = lazy(() => import('./pages/admin/AdminBlog'));
+const AdminDashboard = NotFound;
+const AdminUsers = NotFound;
+const AdminWorkspaces = NotFound;
+const AdminAIUsage = NotFound;
+const AdminFeatureFlags = NotFound;
+const AdminBlog = NotFound;
 
 // ─── Other ────────────────────────────────────────────────────────
-const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60 * 1000, retry: 1 } },

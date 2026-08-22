@@ -268,6 +268,21 @@ export interface AffiliateCampaign {
   created_at: string;
 }
 
+export interface Automation {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  trigger: string;
+  steps: Record<string, unknown>[];
+  enabled: boolean;
+  run_count: number;
+  last_run_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ─── Integrations ─────────────────────────────────────────────────
 export type IntegrationType = 'wordpress' | 'blogger' | 'webhook' | 'api';
 export type IntegrationStatus = 'connected' | 'disconnected' | 'error' | 'needs_reauth';

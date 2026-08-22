@@ -47,7 +47,7 @@ export default function AIWriter() {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { tone: 'professional', language: 'en', length: 'medium' },
   });
