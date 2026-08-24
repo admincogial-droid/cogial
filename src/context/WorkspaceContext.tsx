@@ -36,10 +36,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const loadWorkspaces = useCallback(async () => {
     if (!user) { setLoading(false); return; }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('workspace_members')
       .select('workspace_id, workspaces(*)')
       .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Failed to load workspaces:', error);
+    }
 
     if (data) {
       const ws = data.map((d: { workspaces: unknown }) => d.workspaces as Workspace).filter(Boolean);
