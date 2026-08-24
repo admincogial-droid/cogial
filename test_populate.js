@@ -18,9 +18,22 @@ async function test() {
     return;
   }
   
-  console.log('User created:', authData.user?.id);
+  const userId = authData.user?.id;
+  console.log('User created:', userId);
   
-  // Now we are authenticated. Let's query workspace_members.
+  // Create a workspace
+  const { data: wsData, error: wsError } = await supabase
+    .from('workspaces')
+    .insert({
+      name: 'Test Workspace',
+      slug: 'test-ws-' + Date.now(),
+      owner_id: userId
+    }).select().single();
+    
+  console.log('Workspace creation error:', wsError);
+  console.log('Workspace created:', wsData?.id);
+  
+  // Now query workspace_members
   const { data, error } = await supabase
     .from('workspace_members')
     .select('*');
