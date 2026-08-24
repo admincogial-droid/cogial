@@ -11,7 +11,7 @@ import {
   Link2, Zap, Globe, LineChart, CreditCard, Settings, HelpCircle,
   LogOut, ChevronDown, Plus, Users, ChevronRight, Sparkles,
   BookTemplate, Mic2, Cpu, X, Menu, Wrench, History,
-  PenTool, Megaphone, Share2, Youtube, Video, Target, Palette, Volume2, Image as ImageIcon
+  PenTool, Megaphone, Share2, Tv, Video, Target, Palette, Volume2, Image as ImageIcon
 } from 'lucide-react';
 
 const navGroups = [
@@ -40,7 +40,7 @@ const navGroups = [
       { to: '/dashboard/tools?category=writing', label: 'Writing', icon: PenTool },
       { to: '/dashboard/tools?category=marketing', label: 'Marketing', icon: Megaphone },
       { to: '/dashboard/tools?category=social', label: 'Social Media', icon: Share2 },
-      { to: '/dashboard/tools?category=youtube', label: 'YouTube', icon: Youtube },
+      { to: '/dashboard/tools?category=youtube', label: 'YouTube', icon: Tv },
       { to: '/dashboard/tools?category=video', label: 'Video', icon: Video },
       { to: '/dashboard/tools?category=seo', label: 'SEO', icon: Target },
       { to: '/dashboard/tools?category=creative', label: 'Creative', icon: Palette },

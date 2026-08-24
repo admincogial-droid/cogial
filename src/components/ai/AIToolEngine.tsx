@@ -5,11 +5,10 @@ import { supabase } from '@/lib/supabase';
 import { useWorkspace } from '@/context/WorkspaceContext';
 import { toast } from 'sonner';
 import { Loader2, Sparkles, Copy, Save, Download, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/Button'; // Assuming you have a UI Button component, otherwise use standard button
 import { cn } from '@/lib/utils';
 
 export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
-  const { workspace, credits, refreshCredits } = useWorkspace();
+  const { workspace, credits, refreshWorkspace } = useWorkspace();
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
   
@@ -51,7 +50,7 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
       setResult(resData.result);
       
       toast.success('Generation complete!');
-      await refreshCredits(); // Sync the new credit balance
+      await refreshWorkspace(); // Sync the new credit balance
     } catch (error: any) {
       toast.error(error.message || 'Something went wrong');
     } finally {
