@@ -10,7 +10,8 @@ import {
   LayoutDashboard, PenSquare, Layers, FileText, Search, BarChart3,
   Link2, Zap, Globe, LineChart, CreditCard, Settings, HelpCircle,
   LogOut, ChevronDown, Plus, Users, ChevronRight, Sparkles,
-  BookTemplate, Mic2, Cpu, X, Menu
+  BookTemplate, Mic2, Cpu, X, Menu, Wrench, History,
+  PenTool, Megaphone, Share2, Youtube, Video, Target, Palette, Volume2, Image as ImageIcon
 } from 'lucide-react';
 
 const navGroups = [
@@ -29,6 +30,22 @@ const navGroups = [
       { to: '/dashboard/content', label: 'Content Library', icon: FileText },
       { to: '/dashboard/templates', label: 'Templates', icon: BookTemplate },
       { to: '/dashboard/brand-voice', label: 'Brand Voice', icon: Mic2 },
+    ],
+  },
+  {
+    label: 'AI Tools',
+    items: [
+      { to: '/dashboard/tools', label: 'All Tools', icon: Wrench, end: true },
+      { to: '/dashboard/history', label: 'History', icon: History },
+      { to: '/dashboard/tools?category=writing', label: 'Writing', icon: PenTool },
+      { to: '/dashboard/tools?category=marketing', label: 'Marketing', icon: Megaphone },
+      { to: '/dashboard/tools?category=social', label: 'Social Media', icon: Share2 },
+      { to: '/dashboard/tools?category=youtube', label: 'YouTube', icon: Youtube },
+      { to: '/dashboard/tools?category=video', label: 'Video', icon: Video },
+      { to: '/dashboard/tools?category=seo', label: 'SEO', icon: Target },
+      { to: '/dashboard/tools?category=creative', label: 'Creative', icon: Palette },
+      { to: '/dashboard/tools?category=voice', label: 'Voice', icon: Volume2 },
+      { to: '/dashboard/tools?category=images', label: 'Images', icon: ImageIcon },
     ],
   },
   {

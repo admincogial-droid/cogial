@@ -54,6 +54,9 @@ const BillingPage = lazy(() => import('./pages/app/billing/BillingPage'));
 const TeamPage = lazy(() => import('./pages/app/settings/TeamPage'));
 const SettingsPage = lazy(() => import('./pages/app/settings/SettingsPage'));
 const HelpPage = NotFound;
+const ToolsDashboard = lazy(() => import('./pages/app/tools/ToolsDashboard'));
+const ToolSlug = lazy(() => import('./pages/app/tools/ToolSlug'));
+const GenerationHistory = lazy(() => import('./pages/app/tools/GenerationHistory'));
 
 // ─── Admin Pages ──────────────────────────────────────────────────
 const AdminDashboard = NotFound;
@@ -113,6 +116,9 @@ export default function App() {
                 <Route path="/dashboard/bulk" element={<ProtectedRoute><BulkGenerator /></ProtectedRoute>} />
                 <Route path="/dashboard/content" element={<ProtectedRoute><ContentLibrary /></ProtectedRoute>} />
                 <Route path="/dashboard/content/:id" element={<ProtectedRoute><ContentEditor /></ProtectedRoute>} />
+                <Route path="/dashboard/tools" element={<ProtectedRoute><ToolsDashboard /></ProtectedRoute>} />
+                <Route path="/dashboard/tools/:toolId" element={<ProtectedRoute><ToolSlug /></ProtectedRoute>} />
+                <Route path="/dashboard/history" element={<ProtectedRoute><GenerationHistory /></ProtectedRoute>} />
                 <Route path="/dashboard/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
                 <Route path="/dashboard/brand-voice" element={<ProtectedRoute><BrandVoice /></ProtectedRoute>} />
                 <Route path="/dashboard/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
