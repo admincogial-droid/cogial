@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ContentEditor() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [content, setContent] = useState<Content | null>(null);
   const [body, setBody] = useState('');
   const [title, setTitle] = useState('');
@@ -22,7 +21,6 @@ export default function ContentEditor() {
   const [showVersions, setShowVersions] = useState(false);
   const [loading, setLoading] = useState(true);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const versionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -91,13 +89,31 @@ export default function ContentEditor() {
             <span className={`text-xs ${saveStatus === 'saving' ? 'text-muted-foreground' : saveStatus === 'saved' ? 'text-green-500' : saveStatus === 'error' ? 'text-destructive' : 'text-transparent'}`}>
               {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? '✓ Saved' : saveStatus === 'error' ? '⚠ Save failed' : '.'}
             </span>
+            <button onClick={() => { navigator.clipboard.writeText(`${title ? `# ${title}\n\n` : ''}${body}`); toast.success('Copied to clipboard'); }}
+              className="flex items-center gap-1.5 text-xs h-8 px-2.5 rounded-lg border border-border hover:bg-accent transition-colors">
+              Copy
+            </button>
             <button onClick={() => setShowVersions(v => !v)}
               className="flex items-center gap-1.5 text-xs h-8 px-3 rounded-lg border border-border hover:bg-accent transition-colors">
               <Clock size={12} /> History <ChevronDown size={12} className={showVersions ? 'rotate-180' : ''} />
             </button>
             <button onClick={() => save(true)} disabled={saving}
-              className="flex items-center gap-1.5 text-xs h-8 px-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
-              <Save size={12} /> {saving ? 'Saving…' : 'Save'}
+              className="flex items-center gap-1.5 text-xs h-8 px-3 rounded-lg border border-border hover:bg-accent disabled:opacity-50 transition-colors">
+              <Save size={12} /> {saving ? 'Saving…' : 'Save Version'}
+            </button>
+            <button onClick={async () => {
+              if (!id) return;
+              const newStatus = content.status === 'published' ? 'draft' : 'published';
+              await supabase.from('contents').update({ status: newStatus, published_at: newStatus === 'published' ? new Date().toISOString() : null }).eq('id', id);
+              setContent(prev => prev ? { ...prev, status: newStatus } : null);
+              toast.success(newStatus === 'published' ? 'Published!' : 'Reverted to draft');
+            }}
+              className={`flex items-center gap-1.5 text-xs h-8 px-3 rounded-lg font-semibold transition-colors ${
+                content.status === 'published'
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+              }`}>
+              {content.status === 'published' ? 'Published' : 'Publish'}
             </button>
           </div>
         </div>

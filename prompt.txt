@@ -1,0 +1,3319 @@
+PRESSLINE — PRODUCTION COMPLETION MASTER PROMPT
+
+ROLE
+
+You are the principal software architect, senior full-stack engineer, database engineer, AI systems engineer, security engineer, performance engineer, QA engineer and product engineer responsible for taking the existing PressLine application from its current frontend/template state to a complete production-ready SaaS application.
+
+You are working inside an existing React application.
+
+The application is PressLine — an AI-powered content creation, SEO, marketing, publishing, automation and content management platform.
+
+The existing application already contains the visual shell, dashboard, sidebar navigation, routes and UI components.
+
+DO NOT throw away the existing UI.
+
+DO NOT rebuild the application from scratch unless absolutely necessary.
+
+DO NOT replace working components unnecessarily.
+
+DO NOT create another mock frontend.
+
+Your responsibility is to inspect the entire existing codebase, understand the architecture, identify every incomplete feature, and implement the real backend-connected functionality.
+
+The final result must be a working product.
+
+No dead buttons.
+
+No fake statistics.
+
+No placeholder arrays.
+
+No "coming soon".
+
+No console-only functionality.
+
+No simulated API responses.
+
+No hardcoded dashboard metrics.
+
+No fake AI responses.
+
+No local-only data where persistent database storage is required.
+
+Every visible action must either work or be intentionally disabled with a real explanation.
+
+============================================================
+1. EXISTING PRODUCT
+============================================================
+
+The product is called:
+
+PressLine
+
+The application is an AI-powered content platform.
+
+The current sidebar contains approximately:
+
+OVERVIEW
+- Dashboard
+- Analytics
+
+CREATE
+- AI Writer
+- Bulk Generator
+- Content Library
+- Templates
+- Brand Voice
+
+AI TOOLS
+- All Tools
+- History
+
+TOOL CATEGORIES
+- Writing
+- Marketing
+- Social Media
+- YouTube
+- Video
+- SEO
+- Creative
+- Voice
+- Images
+
+SEO
+- Keyword Explorer
+- Keyword Clusters
+- Competitor Analysis
+
+AFFILIATE
+- Affiliate Hub
+
+AUTOMATE
+- Automation
+- Integrations
+
+WORKSPACE
+- Projects
+- Team
+- Billing
+- Settings
+- Help
+
+The exact sidebar may differ slightly in the current repository.
+
+Inspect the actual implementation and preserve the current visual design language.
+
+============================================================
+2. PRIMARY OBJECTIVE
+============================================================
+
+Turn the entire application into a real SaaS product.
+
+The application must use:
+
+Frontend:
+- React
+- TypeScript if already present
+- Vite if already present
+- existing component system
+- existing Tailwind/shadcn components if present
+- React Router or existing router
+
+Backend:
+- Supabase
+- PostgreSQL
+- Supabase Auth
+- Supabase Storage where necessary
+- Supabase Edge Functions where server-side logic is required
+- Supabase RPC/database functions where appropriate
+
+AI:
+- OpenRouter
+- OpenRouter API
+- model selected through environment configuration
+- structured outputs where useful
+- server-side API calls only
+
+The browser MUST NEVER contain the OpenRouter secret API key.
+
+============================================================
+3. FIRST TASK — INSPECT EVERYTHING
+============================================================
+
+Before modifying code:
+
+1. Inspect package.json.
+2. Inspect src/.
+3. Inspect routing.
+4. Inspect all sidebar components.
+5. Inspect all pages.
+6. Inspect all existing hooks.
+7. Inspect existing API utilities.
+8. Inspect Supabase configuration.
+9. Inspect environment variables.
+10. Inspect existing database migrations if present.
+11. Inspect authentication.
+12. Inspect existing UI components.
+13. Inspect existing state management.
+14. Inspect existing charts.
+15. Inspect existing loading/error states.
+16. Inspect all TODOs.
+17. Inspect all placeholder/mock data.
+18. Search for:
+   - TODO
+   - FIXME
+   - mock
+   - dummy
+   - placeholder
+   - coming soon
+   - console.log
+   - hardcoded metrics
+   - fake arrays
+   - setTimeout
+   - random values
+   - Math.random
+19. Identify routes that currently only render UI.
+20. Identify buttons that do nothing.
+21. Identify forms that do not persist.
+22. Identify API calls that are incomplete.
+
+Create an internal implementation checklist before changing code.
+
+Do not ask the developer to manually explain things that can be determined by inspecting the repository.
+
+============================================================
+4. ENVIRONMENT
+============================================================
+
+Use environment variables.
+
+Frontend-safe:
+
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+
+Server-only:
+
+OPENROUTER_API_KEY=
+
+Optional:
+
+OPENROUTER_MODEL=
+OPENROUTER_FALLBACK_MODEL=
+OPENROUTER_SITE_URL=
+OPENROUTER_APP_NAME=
+
+Never expose:
+
+OPENROUTER_API_KEY
+
+inside:
+
+- React components
+- browser bundles
+- localStorage
+- sessionStorage
+- URL parameters
+- client-side configuration
+- public environment variables
+
+If the current project already has environment naming conventions, preserve them.
+
+Never commit secrets.
+
+Create/update .env.example with variable names only.
+
+============================================================
+5. SECURITY ARCHITECTURE
+============================================================
+
+Use this architecture:
+
+Browser
+    |
+    | Supabase publishable key
+    v
+Supabase Auth / Database / Storage
+    |
+    v
+Supabase Edge Functions
+    |
+    | server-side secret
+    v
+OpenRouter
+
+AI calls must happen through server-side Edge Functions.
+
+The client sends:
+
+- operation
+- authenticated user context
+- validated request payload
+
+The Edge Function:
+
+1. validates authentication
+2. validates authorization
+3. validates request schema
+4. checks usage/credits
+5. checks rate limits
+6. constructs AI request
+7. calls OpenRouter
+8. validates response
+9. records usage
+10. persists result where appropriate
+11. returns only necessary response data
+
+Never trust client-provided:
+
+- user_id
+- workspace_id
+- credit balance
+- subscription plan
+- role
+- permission
+- token cost
+
+Derive sensitive values server-side.
+
+Use Supabase RLS for user/workspace isolation.
+
+Supabase recommends enabling RLS and granting least-privilege access for application tables. :contentReference[oaicite:2]{index=2}
+
+============================================================
+6. DATABASE ARCHITECTURE
+============================================================
+
+Create proper PostgreSQL tables.
+
+Do not create one giant table.
+
+Suggested core schema:
+
+profiles
+
+id
+user_id
+display_name
+avatar_url
+timezone
+created_at
+updated_at
+
+workspaces
+
+id
+name
+slug
+owner_id
+created_at
+updated_at
+
+workspace_members
+
+id
+workspace_id
+user_id
+role
+created_at
+
+plans
+
+id
+name
+slug
+monthly_credits
+max_members
+max_projects
+features
+created_at
+
+subscriptions
+
+id
+workspace_id
+plan_id
+status
+provider
+external_customer_id
+external_subscription_id
+current_period_start
+current_period_end
+created_at
+updated_at
+
+credit_accounts
+
+id
+workspace_id
+balance
+monthly_limit
+reset_at
+created_at
+updated_at
+
+credit_transactions
+
+id
+workspace_id
+user_id
+type
+amount
+balance_after
+operation
+reference_id
+metadata
+created_at
+
+projects
+
+id
+workspace_id
+name
+description
+status
+created_by
+created_at
+updated_at
+
+contents
+
+id
+workspace_id
+project_id
+user_id
+title
+slug
+content_type
+status
+excerpt
+content
+word_count
+character_count
+reading_time
+seo_score
+seo_title
+seo_description
+primary_keyword
+secondary_keywords
+featured_image_url
+created_at
+updated_at
+published_at
+
+content_versions
+
+id
+content_id
+user_id
+version_number
+title
+content
+metadata
+created_at
+
+templates
+
+id
+workspace_id
+name
+description
+category
+prompt_template
+input_schema
+output_schema
+is_system
+created_by
+created_at
+updated_at
+
+brand_voices
+
+id
+workspace_id
+name
+description
+tone
+style_rules
+avoid_rules
+example_content
+created_at
+updated_at
+
+ai_generations
+
+id
+workspace_id
+user_id
+operation
+model
+provider
+input_tokens
+output_tokens
+total_tokens
+estimated_cost
+credits_used
+status
+request_id
+content_id
+metadata
+created_at
+
+ai_history
+
+id
+workspace_id
+user_id
+operation
+title
+input_summary
+result_summary
+result_data
+created_at
+
+keywords
+
+id
+workspace_id
+keyword
+country
+language
+search_volume
+difficulty
+cpc
+intent
+created_at
+updated_at
+
+keyword_clusters
+
+id
+workspace_id
+name
+primary_keyword
+keywords
+intent
+created_at
+
+competitor_analyses
+
+id
+workspace_id
+user_id
+domain
+competitor_name
+analysis_data
+created_at
+
+automations
+
+id
+workspace_id
+created_by
+name
+description
+trigger_type
+trigger_config
+action_type
+action_config
+status
+last_run_at
+next_run_at
+created_at
+updated_at
+
+automation_runs
+
+id
+automation_id
+status
+started_at
+completed_at
+result
+error
+
+integrations
+
+id
+workspace_id
+provider
+status
+configuration
+created_at
+updated_at
+
+affiliate_links
+
+id
+workspace_id
+user_id
+name
+url
+code
+clicks
+conversions
+revenue
+created_at
+updated_at
+
+affiliate_clicks
+
+id
+affiliate_link_id
+ip_hash
+user_agent
+referrer
+created_at
+
+notifications
+
+id
+workspace_id
+user_id
+type
+title
+message
+read_at
+created_at
+
+support_tickets
+
+id
+workspace_id
+user_id
+subject
+description
+status
+priority
+created_at
+updated_at
+
+ticket_messages
+
+id
+ticket_id
+user_id
+message
+created_at
+
+analytics_events
+
+id
+workspace_id
+user_id
+event_name
+properties
+created_at
+
+settings
+
+id
+workspace_id
+key
+value
+created_at
+updated_at
+
+============================================================
+7. DATABASE RULES
+============================================================
+
+Every table containing workspace/user data must have appropriate RLS.
+
+Users must only access workspaces where they are members.
+
+Workspace owners/admins can manage workspace resources.
+
+Members receive role-based permissions.
+
+Never rely only on frontend permission checks.
+
+Frontend checks are for UX.
+
+RLS and server-side authorization are the real security boundary.
+
+Create indexes for:
+
+workspace_id
+user_id
+created_at
+status
+content_id
+project_id
+automation_id
+keyword
+slug
+
+Avoid over-indexing.
+
+Use database constraints.
+
+Use foreign keys.
+
+Use unique constraints where appropriate.
+
+Use timestamps consistently.
+
+Use JSONB only where flexible structures are genuinely required.
+
+============================================================
+8. DASHBOARD
+============================================================
+
+The dashboard must be completely real.
+
+The current cards:
+
+AI Credits Left
+Content Created
+Words Generated
+Published Articles
+Affiliate Clicks
+
+must come from Supabase.
+
+Do not use fake values.
+
+Calculate:
+
+AI Credits Left
+=
+credit account balance
+
+Content Created
+=
+count of contents created during the relevant period
+
+Words Generated
+=
+sum(content.word_count)
+
+Published Articles
+=
+count(contents where status = published)
+
+Affiliate Clicks
+=
+count(affiliate_clicks)
+
+Dashboard should support a sensible time range.
+
+Default:
+
+Last 7 days
+
+Provide optional:
+
+7 days
+30 days
+90 days
+All time
+
+Do not load all content records just to calculate metrics.
+
+Use efficient SQL aggregation.
+
+Prefer one optimized RPC or a small number of optimized aggregate queries rather than downloading thousands of rows to the browser.
+
+Example concept:
+
+get_dashboard_metrics(workspace_id, date_range)
+
+returns:
+
+credits_remaining
+content_created
+words_generated
+published_articles
+affiliate_clicks
+
+Also return:
+
+daily_credit_usage
+
+for the chart.
+
+============================================================
+9. BANDWIDTH OPTIMIZATION
+============================================================
+
+This is extremely important.
+
+Build the application for low bandwidth.
+
+DO NOT:
+
+- download entire tables
+- repeatedly refetch identical data
+- poll every few seconds
+- subscribe to realtime everywhere
+- fetch full content when only title is needed
+- fetch unused columns
+- request huge AI outputs unnecessarily
+- load every route immediately
+- bundle every tool on initial page load
+
+Use:
+
+- select only required columns
+- pagination
+- cursor pagination where appropriate
+- server-side aggregation
+- React.lazy
+- route-level code splitting
+- dynamic imports
+- debounced search
+- cached queries
+- stale-while-revalidate behavior
+- request deduplication
+- optimistic updates where safe
+- abort controllers
+- pagination
+- lazy images
+- compressed assets
+- small JSON payloads
+- database indexes
+- RPC aggregation
+- selective realtime
+
+If using React Query/TanStack Query already, use it properly.
+
+If not, introduce a lightweight data fetching architecture only if necessary.
+
+Cache:
+
+dashboard metrics
+workspace metadata
+brand voices
+templates
+tool definitions
+settings
+
+Do not cache sensitive data incorrectly.
+
+Use query keys based on:
+
+workspace
+user
+resource
+filters
+pagination
+
+Example:
+
+dashboard:workspaceId:7d
+
+contents:workspaceId:page:1:filter
+
+templates:workspaceId:category
+
+============================================================
+10. REALTIME
+============================================================
+
+Do not use Supabase Realtime for everything.
+
+Only use it where real-time updates are genuinely useful:
+
+- notifications
+- active automation status
+- collaborative team events if implemented
+- generation job status if necessary
+
+Do not subscribe to the entire contents table.
+
+Remove realtime subscriptions when components unmount.
+
+============================================================
+11. AI ARCHITECTURE
+============================================================
+
+Create one centralized AI service.
+
+Do not scatter OpenRouter fetch calls across 30 React components.
+
+Use:
+
+src/lib/ai/
+or
+
+src/services/ai/
+
+with server-side Edge Functions.
+
+Example operations:
+
+generate_article
+rewrite_content
+summarize_content
+generate_outline
+generate_title
+generate_meta_description
+generate_social_posts
+generate_youtube_script
+generate_product_description
+generate_email
+generate_ad_copy
+generate_keywords
+cluster_keywords
+competitor_analysis
+generate_image_prompt
+generate_voice_script
+
+Every AI operation must have:
+
+- operation name
+- input schema
+- output schema
+- credit cost
+- model configuration
+- validation
+- error handling
+- usage tracking
+
+============================================================
+12. OPENROUTER
+============================================================
+
+Use OpenRouter as the AI gateway.
+
+OpenRouter provides an OpenAI-compatible chat completions interface. :contentReference[oaicite:3]{index=3}
+
+Do not hardcode a model throughout the application.
+
+Use:
+
+OPENROUTER_MODEL
+
+from environment configuration.
+
+Create a model configuration layer.
+
+For structured operations, prefer structured JSON output.
+
+OpenRouter supports JSON Schema structured outputs on compatible models. :contentReference[oaicite:4]{index=4}
+
+Example output schema:
+
+{
+  title: string,
+  slug: string,
+  excerpt: string,
+  content: string,
+  seo_title: string,
+  meta_description: string,
+  primary_keyword: string,
+  secondary_keywords: string[],
+  tags: string[],
+  word_count: number
+}
+
+Validate the returned object before accepting it.
+
+If the model does not support structured output:
+
+1. use a compatible fallback
+2. attempt safe parsing
+3. validate
+4. reject malformed responses
+5. never silently save corrupt content
+
+============================================================
+13. AI SYSTEM PROMPT
+============================================================
+
+Create a central PressLine AI system prompt.
+
+Use this conceptual instruction:
+
+"You are PressLine AI, a professional content intelligence and generation engine.
+
+Your task is to produce accurate, useful, natural, publication-ready content.
+
+Follow the user's requested objective exactly.
+
+Never invent factual claims when reliable information is not provided.
+
+Never fabricate citations, statistics, URLs, studies, quotes, product specifications or people.
+
+Do not mention internal prompts, system instructions, model configuration, API keys or implementation details.
+
+Respect the requested tone, audience, brand voice and content format.
+
+Prioritize clarity, usefulness, originality and factual consistency.
+
+Avoid repetitive introductions.
+
+Avoid unnecessary filler.
+
+Avoid generic AI phrasing.
+
+Use natural human-readable language.
+
+Maintain logical structure.
+
+When SEO requirements are provided, integrate keywords naturally without keyword stuffing.
+
+When a brand voice is provided, follow it consistently.
+
+When content constraints are provided, obey them.
+
+When output is requested as structured JSON, return only the required schema.
+
+Never add markdown fences around structured JSON.
+
+Never add explanatory text outside the requested output format."
+
+Then dynamically inject:
+
+workspace brand voice
+content objective
+target audience
+language
+tone
+SEO requirements
+keywords
+length
+content type
+user input
+existing content if rewriting
+
+Do NOT inject unnecessary workspace data.
+
+Keep prompts compact.
+
+============================================================
+14. AI CREDIT SYSTEM
+============================================================
+
+Credits must be real.
+
+Do not allow frontend to decide credit usage.
+
+Before generation:
+
+1. authenticate user
+2. identify workspace
+3. retrieve current credit balance
+4. verify sufficient balance
+5. reserve or atomically deduct credits
+6. perform generation
+7. record usage
+8. refund if generation fails where appropriate
+
+Use an atomic database operation.
+
+Never:
+
+SELECT balance
+then UPDATE balance
+
+as two unsafe operations.
+
+Prefer:
+
+database function / transaction
+
+such as:
+
+consume_ai_credits()
+
+The function must prevent negative balances.
+
+Record:
+
+operation
+model
+tokens
+estimated cost
+credits
+user
+workspace
+timestamp
+request ID
+
+Dashboard usage should be generated from this ledger.
+
+============================================================
+15. AI WRITER
+============================================================
+
+AI Writer must be a complete workspace.
+
+Support:
+
+- content type
+- topic
+- title
+- audience
+- tone
+- language
+- desired length
+- keywords
+- brand voice
+- SEO optimization
+- outline generation
+- full article generation
+- rewrite
+- expand
+- shorten
+- simplify
+- improve
+- grammar
+- change tone
+- continue writing
+- generate title
+- generate introduction
+- generate conclusion
+- save draft
+- save version
+- publish
+- export
+
+Editor should support autosave.
+
+Autosave must be debounced.
+
+Do not write to Supabase on every keystroke.
+
+Use:
+
+local state
++
+debounced persistence
+
+Example:
+
+500–1500ms debounce depending on implementation.
+
+Save only when content actually changed.
+
+============================================================
+16. CONTENT LIBRARY
+============================================================
+
+Implement real content management.
+
+Features:
+
+- list
+- search
+- filter
+- sort
+- pagination
+- create
+- edit
+- duplicate
+- delete
+- archive
+- restore
+- publish
+- unpublish
+- status
+- project
+- tags
+- content type
+- created date
+- updated date
+
+Statuses:
+
+draft
+review
+scheduled
+published
+archived
+
+Do not load complete content bodies into the library list.
+
+List query should return:
+
+id
+title
+slug
+status
+type
+word_count
+project_id
+created_at
+updated_at
+published_at
+
+Fetch full body only when opening the editor.
+
+============================================================
+17. CONTENT VERSIONS
+============================================================
+
+Every significant AI/content save should be versionable.
+
+Provide:
+
+Version 1
+Version 2
+Version 3
+
+Allow:
+
+view version
+restore version
+
+Do not overwrite historical versions.
+
+============================================================
+18. TEMPLATES
+============================================================
+
+Templates must be functional.
+
+Support:
+
+system templates
+workspace templates
+custom templates
+
+Template fields:
+
+name
+category
+description
+prompt
+input schema
+output schema
+
+Users can:
+
+create
+edit
+duplicate
+delete
+favorite
+use template
+
+When "Use Template" is clicked, open the correct input form.
+
+============================================================
+19. BRAND VOICE
+============================================================
+
+Users must be able to create brand voices.
+
+Fields:
+
+name
+description
+tone
+style
+audience
+preferred vocabulary
+words to avoid
+sentence style
+formatting rules
+example content
+
+When generating content, the selected brand voice is included in the AI prompt.
+
+Do not load all brand voice content on every page.
+
+============================================================
+20. ALL TOOLS
+============================================================
+
+Create a centralized tool registry.
+
+Example:
+
+const tools = [
+ {
+   id: "article-generator",
+   category: "writing",
+   name: "Article Generator",
+   description: "...",
+   operation: "generate_article",
+   creditCost: ...
+ }
+]
+
+Do NOT duplicate tool metadata across components.
+
+All Tools should be generated from this registry.
+
+Categories:
+
+Writing
+Marketing
+Social Media
+YouTube
+Video
+SEO
+Creative
+Voice
+Images
+
+Every tool displayed must open a functional tool page/modal.
+
+No dead tool cards.
+
+============================================================
+21. WRITING TOOLS
+============================================================
+
+Implement tools such as:
+
+Article Writer
+Blog Intro
+Blog Conclusion
+Rewrite
+Paraphraser
+Summarizer
+Grammar Improver
+Sentence Expander
+Sentence Shortener
+Tone Changer
+Email Writer
+Professional Email
+Cold Email
+Newsletter
+Product Description
+FAQ Generator
+Outline Generator
+Title Generator
+
+Each tool:
+
+- has input
+- has validation
+- calls backend AI operation
+- consumes credits
+- shows loading state
+- handles errors
+- allows copy
+- allows save
+- optionally creates content
+
+============================================================
+22. MARKETING TOOLS
+============================================================
+
+Implement:
+
+Ad Copy
+Facebook Ad
+Google Ad
+Landing Page Copy
+CTA Generator
+Marketing Email
+Sales Email
+Product Description
+AIDA
+PAS
+Value Proposition
+Customer Persona
+
+Use structured outputs where useful.
+
+============================================================
+23. SOCIAL MEDIA
+============================================================
+
+Implement:
+
+LinkedIn Post
+Twitter/X Post
+Instagram Caption
+Facebook Post
+Threads Post
+Social Media Ideas
+Hashtag Generator
+Social Content Repurposer
+
+Allow:
+
+platform selection
+tone
+length
+hashtags
+CTA
+
+Allow multi-output generation.
+
+============================================================
+24. YOUTUBE
+============================================================
+
+Implement:
+
+YouTube Title
+Description
+Script
+Hook
+Video Ideas
+Chapter Generator
+Shorts Script
+Tags
+
+Output should include structured fields when useful.
+
+============================================================
+25. VIDEO
+============================================================
+
+Implement AI-assisted:
+
+Video Script
+Scene Breakdown
+Storyboard Text
+Voiceover Script
+Hook Generator
+Short Video Script
+B-roll Suggestions
+Video Prompt
+
+Do not claim to generate actual video unless an actual video provider is integrated.
+
+If only text generation is supported, label it honestly.
+
+============================================================
+26. SEO
+============================================================
+
+Implement:
+
+Keyword Explorer
+Keyword Clusters
+Competitor Analysis
+SEO Article Brief
+Meta Title
+Meta Description
+FAQ Schema Suggestions
+Internal Link Suggestions
+Content Optimization
+
+Keyword Explorer should persist useful keyword research.
+
+Do not fabricate search volume data.
+
+If a real keyword provider is not configured:
+
+clearly distinguish:
+
+AI estimate
+
+from
+
+verified external metric
+
+Never present invented search volume as real data.
+
+============================================================
+27. KEYWORD CLUSTERING
+============================================================
+
+Allow user to enter keywords.
+
+Return:
+
+cluster name
+primary keyword
+secondary keywords
+search intent
+content type
+suggested title
+
+Persist clusters.
+
+Allow export.
+
+============================================================
+28. COMPETITOR ANALYSIS
+============================================================
+
+User provides a domain.
+
+Do not pretend to crawl websites if there is no crawler/search integration.
+
+If an actual web/data provider is available, use it.
+
+Otherwise implement a safe analysis workflow where the user can provide:
+
+competitor content
+URL metadata
+text
+
+Then analyze:
+
+content structure
+topics
+keywords
+tone
+headings
+gaps
+opportunities
+
+Clearly distinguish observed data from AI recommendations.
+
+============================================================
+29. HISTORY
+============================================================
+
+History must be real.
+
+Store generation history.
+
+Allow:
+
+search
+filter
+open
+reuse
+copy
+save
+delete
+
+Do not store huge duplicated payloads unnecessarily.
+
+Use summaries and references.
+
+Store large generated content in content/content_versions when appropriate.
+
+History should reference generated content rather than duplicating entire documents.
+
+============================================================
+30. ANALYTICS
+============================================================
+
+Create real analytics.
+
+Metrics:
+
+AI credits consumed
+AI generations
+content created
+words generated
+published content
+top tools
+top content
+daily activity
+monthly activity
+usage by user
+usage by project
+
+Do not query raw millions of events into React.
+
+Use aggregate SQL queries.
+
+If data volume becomes large, introduce daily aggregate tables/materialized views.
+
+============================================================
+31. AFFILIATE HUB
+============================================================
+
+Implement:
+
+affiliate links
+tracking
+click counts
+conversion counts if data exists
+revenue if data exists
+link management
+
+Never fabricate conversion/revenue data.
+
+Click tracking should be lightweight.
+
+Use hashed IP if IP information is stored.
+
+Respect privacy requirements.
+
+============================================================
+32. AUTOMATION
+============================================================
+
+Implement automation architecture.
+
+Users can create:
+
+trigger
+condition
+action
+
+Examples:
+
+"Every Monday generate a blog idea"
+
+"When content is created, generate social posts"
+
+"When article is published, create metadata"
+
+"When content status changes, send notification"
+
+Automation statuses:
+
+active
+paused
+error
+
+Create automation_runs.
+
+Every run must have:
+
+started_at
+completed_at
+status
+error
+result
+
+Do not run arbitrary untrusted code.
+
+============================================================
+33. INTEGRATIONS
+============================================================
+
+Build an integration framework.
+
+Possible providers:
+
+Google
+WordPress
+Slack
+Discord
+Webhooks
+Email
+Analytics
+Publishing platforms
+
+Do not build fake integrations.
+
+If credentials are required:
+
+store secrets securely server-side.
+
+Never store OAuth secrets in frontend localStorage.
+
+Show:
+
+Connected
+Disconnected
+Needs attention
+
+Implement connection testing.
+
+============================================================
+34. PROJECTS
+============================================================
+
+Projects must work.
+
+Users can:
+
+create
+rename
+archive
+delete
+open
+
+Project dashboard should show:
+
+content count
+draft count
+published count
+words
+recent activity
+
+Content should be assignable to projects.
+
+============================================================
+35. TEAM
+============================================================
+
+Implement workspace membership.
+
+Roles:
+
+owner
+admin
+editor
+member
+viewer
+
+Implement invitations if email infrastructure exists.
+
+Otherwise implement pending invitation records and a proper integration boundary.
+
+Permission checks must exist server-side.
+
+============================================================
+36. BILLING
+============================================================
+
+Do not create fake payment functionality.
+
+Billing page should display:
+
+current plan
+credits
+usage
+renewal date
+subscription status
+
+If Stripe is not configured:
+
+build the billing architecture cleanly without pretending payments work.
+
+Create integration boundaries for:
+
+checkout
+customer portal
+subscription webhook
+plan changes
+
+Never expose Stripe secrets.
+
+============================================================
+37. SETTINGS
+============================================================
+
+Settings should include:
+
+Profile
+Workspace
+AI
+Brand
+Notifications
+Security
+Preferences
+
+Persist settings to Supabase.
+
+Do not save workspace settings only in localStorage.
+
+LocalStorage can be used for non-critical UI preferences such as:
+
+sidebar collapsed
+theme
+last selected view
+
+============================================================
+38. HELP
+============================================================
+
+Implement:
+
+documentation/help UI
+FAQ
+support ticket creation
+ticket history
+
+Users can create:
+
+subject
+description
+priority
+
+Show:
+
+open
+in progress
+resolved
+closed
+
+============================================================
+39. NOTIFICATIONS
+============================================================
+
+Implement real notification storage.
+
+Notifications for:
+
+generation completed
+automation failed
+automation completed
+team invitation
+content published
+system message
+
+Use realtime only if needed.
+
+Otherwise fetch efficiently.
+
+============================================================
+40. SEARCH
+============================================================
+
+The top search bar must actually work.
+
+Search across:
+
+content
+projects
+templates
+tools
+history
+keywords
+
+Do not load everything into the browser.
+
+Use debounced server-side search.
+
+Start searching after approximately 250–350ms.
+
+Return only the first useful results.
+
+Support keyboard shortcut:
+
+Cmd/Ctrl + K
+
+============================================================
+41. LOADING STATES
+============================================================
+
+Every async operation needs a proper state:
+
+idle
+loading
+success
+error
+
+Use skeletons for page-level loading.
+
+Do not show blank white screens.
+
+Buttons should show:
+
+Generating...
+Saving...
+Publishing...
+Deleting...
+Connecting...
+
+Prevent duplicate submissions while requests are active.
+
+============================================================
+42. ERROR HANDLING
+============================================================
+
+Create centralized error handling.
+
+Handle:
+
+401
+403
+404
+409
+422
+429
+500
+network failure
+timeout
+AI provider error
+database error
+
+Never expose raw server errors to users.
+
+Show useful human-readable messages.
+
+Log technical details safely.
+
+============================================================
+43. OPENROUTER ERROR HANDLING
+============================================================
+
+If OpenRouter fails:
+
+- retry only safe transient errors
+- exponential backoff
+- do not retry validation failures
+- do not retry insufficient credits
+- do not duplicate database mutations
+- use request IDs
+- provide fallback model only when configured
+
+Example retry:
+
+attempt 1
+wait ~500ms
+
+attempt 2
+wait ~1s
+
+attempt 3
+wait ~2s
+
+Then fail gracefully.
+
+Do not create infinite retries.
+
+============================================================
+44. AI STREAMING
+============================================================
+
+Use streaming only where it genuinely improves UX.
+
+For long article generation:
+
+stream output if supported by the architecture.
+
+For small structured JSON responses:
+
+do not stream unnecessarily.
+
+Streaming must not cause excessive database writes.
+
+Persist only after the generation is complete or at controlled checkpoints.
+
+============================================================
+45. ABORT CONTROLLERS
+============================================================
+
+If the user starts an AI request and navigates away/cancels:
+
+cancel the request where possible.
+
+Use AbortController.
+
+Never leave orphaned browser requests unnecessarily.
+
+============================================================
+46. COST CONTROL
+============================================================
+
+Minimize AI cost.
+
+Do not send huge system prompts repeatedly when unnecessary.
+
+Do not send the entire content library to the model.
+
+Only send relevant context.
+
+Limit output tokens based on task.
+
+Examples:
+
+Title:
+small output
+
+Meta description:
+small output
+
+Article:
+larger output
+
+Keyword clustering:
+structured compact output
+
+Avoid unnecessary temperature variation.
+
+Centralize model configuration.
+
+============================================================
+47. TOKEN USAGE
+============================================================
+
+Track:
+
+input tokens
+output tokens
+total tokens
+
+when available from the provider.
+
+Do not guess token counts if provider usage is available.
+
+Store actual usage metadata returned by the API.
+
+============================================================
+48. PERFORMANCE
+============================================================
+
+The application should feel fast.
+
+Implement:
+
+lazy routes
+memoized expensive components
+stable callbacks where useful
+virtualized long lists if needed
+debounced search
+query caching
+pagination
+selective database fields
+optimized SQL
+image lazy loading
+optimized icons
+no giant client-side datasets
+
+Avoid premature optimization.
+
+Measure first.
+
+Do not add complexity without benefit.
+
+============================================================
+49. REACT ARCHITECTURE
+============================================================
+
+Organize code logically.
+
+Suggested:
+
+src/
+  app/
+  components/
+  pages/
+  layouts/
+  hooks/
+  lib/
+  services/
+  features/
+  routes/
+  types/
+  utils/
+
+Feature examples:
+
+features/
+  dashboard/
+  writer/
+  content/
+  templates/
+  brand-voice/
+  seo/
+  analytics/
+  automation/
+  affiliate/
+  projects/
+  team/
+  billing/
+  settings/
+  help/
+
+Avoid a giant App.tsx.
+
+Avoid giant components over approximately 500 lines where practical.
+
+Separate:
+
+UI
+business logic
+data fetching
+validation
+API interaction
+
+============================================================
+50. DATA FETCHING
+============================================================
+
+Create reusable query hooks.
+
+Examples:
+
+useDashboardMetrics()
+useContents()
+useContent()
+useTemplates()
+useBrandVoices()
+useProjects()
+useAnalytics()
+useHistory()
+useNotifications()
+
+Queries should accept:
+
+workspaceId
+filters
+pagination
+
+Mutations:
+
+useCreateContent()
+useUpdateContent()
+useDeleteContent()
+useGenerateArticle()
+usePublishContent()
+
+============================================================
+51. DATABASE FETCHING
+============================================================
+
+Never:
+
+select("*")
+
+unless the entire record is genuinely needed.
+
+Prefer:
+
+select("id,title,status,created_at,...")
+
+Never download full content body in list views.
+
+Never download all rows without pagination.
+
+============================================================
+52. AUTOSAVE
+============================================================
+
+Editor autosave:
+
+debounce
+diff detection
+save status indicator
+
+Show:
+
+Saved
+Saving...
+Unsaved changes
+Save failed
+
+Do not create a database record on every keystroke.
+
+============================================================
+53. PUBLISHING
+============================================================
+
+Content publishing must update:
+
+status
+published_at
+
+If external publishing is not configured:
+
+allow internal publishing.
+
+Never claim it was published to WordPress/etc. unless the external API confirms it.
+
+============================================================
+54. IMAGE SYSTEM
+============================================================
+
+If images are supported:
+
+Use Supabase Storage for uploaded assets.
+
+Store only:
+
+bucket
+path
+metadata
+
+not binary data inside Postgres.
+
+Use signed URLs where private files are required.
+
+Compress images before upload where appropriate.
+
+Use responsive image sizes.
+
+============================================================
+55. FILE UPLOADS
+============================================================
+
+Support:
+
+images
+documents
+
+where relevant.
+
+Validate:
+
+file type
+size
+
+Do not trust extension alone.
+
+Use Storage.
+
+============================================================
+56. ACCESS CONTROL
+============================================================
+
+Every route should have appropriate access control.
+
+Examples:
+
+authenticated only
+workspace member only
+admin only
+
+Redirect unauthenticated users to login.
+
+Do not rely on hidden navigation for security.
+
+============================================================
+57. EMPTY STATES
+============================================================
+
+Empty state must be meaningful.
+
+Example:
+
+No articles yet.
+
+Create your first AI-powered article.
+
+[Create Article]
+
+Do not show fake sample content unless explicitly labeled as demo data.
+
+============================================================
+58. DASHBOARD DESIGN
+============================================================
+
+Preserve the existing PressLine visual style:
+
+clean
+minimal
+white/light background
+purple primary accent
+rounded cards
+subtle borders
+professional SaaS layout
+
+Do not redesign unnecessarily.
+
+Improve usability only where needed.
+
+Desktop first but responsive.
+
+============================================================
+59. SIDEBAR
+============================================================
+
+The sidebar must remain usable with many categories.
+
+Ensure:
+
+scrolling works
+active route works
+active category remains visible
+collapsed state works if present
+mobile behavior works
+keyboard accessibility works
+
+Do not allow the sidebar to create unnecessary layout reflows.
+
+============================================================
+60. ACCESSIBILITY
+============================================================
+
+Implement:
+
+semantic buttons
+ARIA labels where necessary
+keyboard navigation
+focus states
+form labels
+dialog accessibility
+escape-to-close
+screen reader-friendly status updates
+
+Do not use clickable divs when buttons are appropriate.
+
+============================================================
+61. MOBILE
+============================================================
+
+At minimum:
+
+sidebar becomes drawer
+cards stack
+tables become responsive
+editor works on smaller screens
+buttons remain accessible
+horizontal overflow is avoided
+
+============================================================
+62. SECURITY AUDIT
+============================================================
+
+Before completion search for:
+
+OpenRouter key in frontend
+service_role key in frontend
+secret keys
+hardcoded passwords
+hardcoded tokens
+dangerous HTML injection
+unsafe dangerouslySetInnerHTML
+unvalidated URLs
+unsafe redirects
+missing RLS
+missing authorization
+client-controlled credits
+client-controlled workspace IDs
+SQL injection possibilities
+XSS
+CSRF-sensitive endpoints
+
+Fix every real issue found.
+
+If rendering generated HTML, sanitize it.
+
+============================================================
+63. SQL SECURITY
+============================================================
+
+Every RPC must verify authorization.
+
+Do not create SECURITY DEFINER functions carelessly.
+
+If SECURITY DEFINER is required:
+
+- set explicit search_path
+- restrict execution privileges
+- validate workspace membership
+- avoid dynamic SQL unless necessary
+
+============================================================
+64. API RATE LIMITING
+============================================================
+
+AI operations must have rate limits.
+
+At minimum consider:
+
+user
+workspace
+IP where appropriate
+operation
+
+Avoid allowing one client to generate thousands of requests.
+
+============================================================
+65. IDEMPOTENCY
+============================================================
+
+Generation requests should support idempotency where practical.
+
+Especially:
+
+credits
+publishing
+automation runs
+external integrations
+
+Never charge twice because the browser retried.
+
+============================================================
+66. DATABASE MIGRATIONS
+============================================================
+
+Create proper migration files.
+
+Do not rely on manually clicking random database UI actions.
+
+Migration order must be deterministic.
+
+Include:
+
+tables
+indexes
+constraints
+RLS
+policies
+functions
+triggers
+
+============================================================
+67. SEED DATA
+============================================================
+
+Create optional seed data only for:
+
+system templates
+tool definitions
+default plan definitions
+
+Do not seed fake user analytics.
+
+Do not seed fake revenue.
+
+Do not seed fake AI credits.
+
+============================================================
+68. TOOL REGISTRY
+============================================================
+
+Create a single source of truth for all AI tools.
+
+Each tool:
+
+id
+name
+category
+description
+icon
+route
+operation
+inputSchema
+outputSchema
+creditCost
+enabled
+supportsStreaming
+
+The sidebar and All Tools page should consume this registry where appropriate.
+
+============================================================
+69. VALIDATION
+============================================================
+
+Use schema validation.
+
+If Zod already exists, use Zod.
+
+Validate:
+
+forms
+API payloads
+AI output
+database input
+
+Never trust AI output.
+
+============================================================
+70. AI OUTPUT VALIDATION
+============================================================
+
+AI output is untrusted input.
+
+Validate:
+
+types
+required fields
+length
+arrays
+URLs
+content size
+
+Reject malformed responses.
+
+============================================================
+71. OBSERVABILITY
+============================================================
+
+Create safe logging.
+
+Track:
+
+request ID
+operation
+duration
+success/failure
+provider
+model
+
+Do NOT log:
+
+API keys
+passwords
+auth tokens
+full private content unnecessarily
+
+============================================================
+72. NETWORK REQUEST POLICY
+============================================================
+
+Before adding a request ask:
+
+Does this data need to be fetched now?
+
+Can it be cached?
+
+Can it be aggregated?
+
+Can it be fetched on demand?
+
+Can it be paginated?
+
+Can the response be smaller?
+
+Can the request be eliminated?
+
+Use this decision process everywhere.
+
+============================================================
+73. DASHBOARD REQUEST OPTIMIZATION
+============================================================
+
+The dashboard initial load should ideally use:
+
+1 dashboard aggregate request
+
+rather than:
+
+10+ separate database requests.
+
+Use an RPC such as:
+
+get_dashboard_overview()
+
+Return:
+
+metrics
+chart points
+recent activity summary
+quick stats
+
+Do not return entire content records.
+
+============================================================
+74. QUICK CREATE
+============================================================
+
+The existing Quick Create section must work.
+
+Buttons:
+
+New Article
+AI Writer
+Product Review
+Bulk Generate
+etc.
+
+Each button must navigate/open the correct workflow.
+
+No dead UI.
+
+============================================================
+75. BILLING / CREDIT DISPLAY
+============================================================
+
+The sidebar credit display must come from the database.
+
+When credit usage changes:
+
+update UI optimistically where safe, then reconcile from server.
+
+Never allow the frontend to increase credits.
+
+============================================================
+76. USER SESSION
+============================================================
+
+Use Supabase Auth.
+
+Handle:
+
+initial loading
+session restoration
+sign out
+token refresh
+expired sessions
+
+Do not flash authenticated UI before session resolution.
+
+Supabase's current React setup uses the Supabase JS client with the publishable key on the frontend. :contentReference[oaicite:5]{index=5}
+
+============================================================
+77. WORKSPACE SWITCHING
+============================================================
+
+The "Select workspace" control must work.
+
+Users with multiple workspaces can switch.
+
+Store active workspace state.
+
+All queries must automatically use the active workspace.
+
+Never accidentally display data from another workspace.
+
+When switching:
+
+invalidate relevant cached queries.
+
+============================================================
+78. SETTINGS CACHE
+============================================================
+
+Cache only safe UI preferences locally.
+
+Examples:
+
+theme
+sidebar state
+editor preferences
+
+Server-side settings remain authoritative.
+
+============================================================
+79. SEARCH OPTIMIZATION
+============================================================
+
+Search:
+
+debounce 250–350ms
+minimum query length where useful
+cancel previous request
+limit results
+server-side filtering
+
+Never:
+
+download all content
+filter 10,000 records in browser
+
+============================================================
+80. BULK GENERATOR
+============================================================
+
+Implement true batch generation.
+
+Input:
+
+CSV or rows
+topic
+template
+brand voice
+tone
+language
+content settings
+
+Use controlled concurrency.
+
+Do not launch 100 simultaneous OpenRouter requests.
+
+Example:
+
+concurrency = 2–5
+
+depending on provider limits.
+
+Track each job.
+
+Show:
+
+queued
+processing
+completed
+failed
+
+Allow retry failed rows.
+
+============================================================
+81. BACKGROUND JOB ARCHITECTURE
+============================================================
+
+For large jobs:
+
+do not keep browser request open for minutes.
+
+Create job records.
+
+Example:
+
+generation_jobs
+
+id
+workspace_id
+user_id
+type
+status
+total
+completed
+failed
+created_at
+updated_at
+
+Process through server-side architecture.
+
+============================================================
+82. AUTOMATION JOBS
+============================================================
+
+Same principle.
+
+Do not rely on browser being open.
+
+Automations should be server-side.
+
+============================================================
+83. COST AWARENESS
+============================================================
+
+Create a central cost policy.
+
+Example:
+
+small text operation
+1 credit
+
+medium operation
+2–5 credits
+
+long generation
+5–20 credits
+
+But do not blindly use these numbers.
+
+Make them configurable.
+
+============================================================
+84. MODEL ROUTING
+============================================================
+
+Use different models if beneficial.
+
+Example concept:
+
+FAST_MODEL
+for:
+titles
+summaries
+simple rewrites
+
+QUALITY_MODEL
+for:
+long articles
+strategy
+complex SEO
+
+CHEAP_MODEL
+for:
+bulk lightweight operations
+
+All model IDs must be configurable.
+
+Never assume a specific model slug will always exist.
+
+Use OpenRouter's models API/configuration where appropriate to inspect available model capabilities. OpenRouter exposes model metadata including supported parameters. :contentReference[oaicite:6]{index=6}
+
+============================================================
+85. FALLBACKS
+============================================================
+
+If primary model fails:
+
+use fallback only if configured.
+
+If fallback fails:
+
+return graceful error.
+
+Do not silently switch to a lower-quality model without tracking it.
+
+Record actual model used.
+
+============================================================
+86. TESTING
+============================================================
+
+Create tests for:
+
+auth
+RLS assumptions
+credit consumption
+dashboard aggregation
+content CRUD
+AI validation
+tool registry
+workspace switching
+permissions
+search
+pagination
+automation
+bulk generation
+
+At minimum manually test all major workflows.
+
+============================================================
+87. BUILD CHECK
+============================================================
+
+Run:
+
+npm install
+
+if necessary.
+
+Then:
+
+npm run lint
+
+npm run typecheck
+
+npm run build
+
+and available tests.
+
+Fix all errors.
+
+Do not stop at the first compilation error.
+
+============================================================
+88. ROUTE CHECK
+============================================================
+
+Programmatically or manually verify every sidebar route.
+
+For each:
+
+load page
+verify no console errors
+verify data state
+verify primary actions
+verify loading state
+verify error state
+verify empty state
+
+============================================================
+89. NO BROKEN LINKS
+============================================================
+
+Every sidebar item must:
+
+navigate to a real route
+or open a real working modal/workflow.
+
+No placeholder href="#".
+
+No empty onClick handlers.
+
+No buttons that merely show toast saying "coming soon".
+
+============================================================
+90. FINAL ACCEPTANCE CRITERIA
+============================================================
+
+The project is NOT complete until:
+
+Dashboard works.
+
+Analytics works.
+
+AI Writer works.
+
+Bulk Generator works.
+
+Content Library works.
+
+Templates work.
+
+Brand Voice works.
+
+All Tools works.
+
+Writing tools work.
+
+Marketing tools work.
+
+Social Media tools work.
+
+YouTube tools work.
+
+Video tools work.
+
+SEO tools work.
+
+Creative tools work.
+
+Voice tools work.
+
+Images tools work, within the capabilities actually integrated.
+
+Keyword Explorer works.
+
+Keyword Clusters works.
+
+Competitor Analysis works within available data integrations.
+
+Affiliate Hub works.
+
+Automation works.
+
+Integrations have real connection architecture.
+
+Projects work.
+
+Team works.
+
+Billing displays real subscription/credit state.
+
+Settings persist.
+
+Help/support works.
+
+History works.
+
+Search works.
+
+Workspace switching works.
+
+Authentication works.
+
+AI credit accounting works.
+
+Dashboard metrics are real.
+
+OpenRouter calls are server-side.
+
+Supabase RLS is implemented.
+
+No secrets are exposed.
+
+No fake metrics remain.
+
+No dead sidebar links remain.
+
+No major console errors remain.
+
+Production build succeeds.
+
+============================================================
+91. PERFORMANCE ACCEPTANCE
+============================================================
+
+Measure and improve:
+
+initial JS bundle
+route bundle size
+number of initial requests
+database payload size
+AI request size
+dashboard response size
+
+The dashboard should not download unnecessary content.
+
+============================================================
+92. BANDWIDTH TARGET
+============================================================
+
+Design every request to be as small as reasonably possible.
+
+Prefer:
+
+1 aggregate request
+
+over:
+
+10 independent requests.
+
+Prefer:
+
+10 fields
+
+over:
+
+50 fields.
+
+Prefer:
+
+20 rows
+
+over:
+
+1000 rows.
+
+Prefer:
+
+summary
+
+over:
+
+full document.
+
+Prefer:
+
+cached result
+
+over:
+
+repeat request.
+
+============================================================
+93. CODE QUALITY
+============================================================
+
+Use clean production TypeScript.
+
+Avoid:
+
+any
+unless unavoidable.
+
+Avoid:
+
+duplicated logic
+magic strings
+magic numbers
+giant components
+unnecessary abstraction
+unused imports
+unused state
+dead files
+
+Create reusable utilities only when they provide real value.
+
+============================================================
+94. IMPORTANT DEVELOPMENT RULE
+============================================================
+
+DO NOT merely tell me what needs to be done.
+
+ACTUALLY IMPLEMENT IT.
+
+When you find incomplete functionality:
+
+fix it.
+
+When you find missing database schema:
+
+create migration.
+
+When you find missing Edge Function:
+
+create it.
+
+When you find missing hook:
+
+create it.
+
+When you find broken route:
+
+fix it.
+
+When you find mock data:
+
+replace it with real data.
+
+When you find a button:
+
+make it functional.
+
+============================================================
+95. DO NOT BREAK EXISTING UI
+============================================================
+
+Preserve:
+
+layout
+colors
+spacing
+typography
+sidebar
+cards
+visual hierarchy
+
+Only improve UI where necessary for usability or functional requirements.
+
+============================================================
+96. IMPLEMENTATION ORDER
+============================================================
+
+PHASE 1
+
+Repository audit.
+
+PHASE 2
+
+Authentication and workspace architecture.
+
+PHASE 3
+
+Supabase schema + RLS + migrations.
+
+PHASE 4
+
+Shared data layer.
+
+PHASE 5
+
+Dashboard real data.
+
+PHASE 6
+
+AI Edge Functions + OpenRouter.
+
+PHASE 7
+
+Credit accounting.
+
+PHASE 8
+
+AI Writer.
+
+PHASE 9
+
+Content Library.
+
+PHASE 10
+
+Templates + Brand Voice.
+
+PHASE 11
+
+Tool registry + AI tools.
+
+PHASE 12
+
+SEO tools.
+
+PHASE 13
+
+Analytics.
+
+PHASE 14
+
+History.
+
+PHASE 15
+
+Projects.
+
+PHASE 16
+
+Team.
+
+PHASE 17
+
+Affiliate.
+
+PHASE 18
+
+Automation.
+
+PHASE 19
+
+Integrations.
+
+PHASE 20
+
+Billing architecture.
+
+PHASE 21
+
+Settings + Help.
+
+PHASE 22
+
+Search.
+
+PHASE 23
+
+Performance optimization.
+
+PHASE 24
+
+Security audit.
+
+PHASE 25
+
+Testing.
+
+PHASE 26
+
+Production build.
+
+============================================================
+97. CONTINUOUS VERIFICATION
+============================================================
+
+After each major phase:
+
+1. run typecheck
+2. run lint
+3. run tests if available
+4. inspect browser
+5. inspect console
+6. verify network calls
+7. verify database writes
+8. verify RLS
+9. fix regressions
+
+Do not wait until the end to discover hundreds of errors.
+
+============================================================
+98. DATABASE VERIFICATION
+============================================================
+
+After creating migrations:
+
+verify:
+
+tables exist
+indexes exist
+RLS enabled
+policies exist
+RPCs work
+foreign keys work
+
+Test with:
+
+owner
+admin
+member
+viewer
+
+where applicable.
+
+============================================================
+99. AI VERIFICATION
+============================================================
+
+Test:
+
+simple generation
+large generation
+malformed model response
+OpenRouter error
+rate limit
+insufficient credits
+cancelled request
+timeout
+fallback model
+
+Verify credits are never incorrectly deducted.
+
+============================================================
+100. FINAL REPORT
+============================================================
+
+At completion provide:
+
+1. Summary of implemented features.
+
+2. Files created.
+
+3. Files modified.
+
+4. Database migrations created.
+
+5. Edge Functions created.
+
+6. Environment variables required.
+
+7. OpenRouter configuration.
+
+8. Supabase configuration.
+
+9. Security improvements.
+
+10. Performance improvements.
+
+11. Remaining external integrations requiring credentials.
+
+12. Test results.
+
+13. Build result.
+
+14. Known limitations.
+
+15. Exact commands to run locally.
+
+Do not claim something is working if it was not actually tested.
+
+============================================================
+FINAL PRINCIPLE
+============================================================
+
+BUILD PRESSLINE AS A REAL PRODUCT.
+
+Not a demo.
+
+Not a prototype.
+
+Not a static dashboard.
+
+Not a collection of fake pages.
+
+Every important piece of the UI must have a real data flow:
+
+USER
+ ↓
+AUTH
+ ↓
+WORKSPACE
+ ↓
+REACT UI
+ ↓
+DATA HOOK
+ ↓
+SUPABASE / EDGE FUNCTION
+ ↓
+DATABASE / OPENROUTER
+ ↓
+VALIDATION
+ ↓
+PERSISTENCE
+ ↓
+CACHE UPDATE
+ ↓
+UI
+
+For AI:
+
+USER
+ ↓
+REACT
+ ↓
+EDGE FUNCTION
+ ↓
+AUTHORIZATION
+ ↓
+CREDIT CHECK
+ ↓
+OPENROUTER
+ ↓
+STRUCTURED OUTPUT VALIDATION
+ ↓
+USAGE RECORD
+ ↓
+DATABASE
+ ↓
+RESPONSE
+ ↓
+UI
+
+For dashboard:
+
+DATABASE
+ ↓
+AGGREGATED SQL/RPC
+ ↓
+SMALL JSON RESPONSE
+ ↓
+REACT QUERY/CACHE
+ ↓
+DASHBOARD
+
+For content:
+
+LIST QUERY
+ ↓
+METADATA ONLY
+ ↓
+USER OPENS DOCUMENT
+ ↓
+FULL CONTENT QUERY
+ ↓
+EDITOR
+
+Optimize every layer.
+
+Minimize network traffic.
+
+Minimize database reads.
+
+Minimize AI tokens.
+
+Minimize unnecessary renders.
+
+Minimize duplicated state.
+
+Maximize reliability.
+
+Maximize security.
+
+Maximize maintainability.
+
+Do not expose secrets.
+
+Do not fabricate data.
+
+Do not hide errors.
+
+Do not leave unfinished functionality.
+
+Finish the application end-to-end.

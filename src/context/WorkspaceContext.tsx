@@ -46,7 +46,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
 
     if (data) {
-      const ws = data.map((d: { workspaces: unknown }) => d.workspaces as Workspace).filter(Boolean);
+      let ws = data.map((d: { workspaces: unknown }) => d.workspaces as Workspace).filter(Boolean);
+      
+      // Auto-create workspace if user has none to prevent infinite loading screens
+      if (ws.length === 0) {
+        try {
+          const name = user.user_metadata?.full_name ? `${user.user_metadata.full_name}'s Workspace` : 'My Workspace';
+          const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
+          const newId = crypto.randomUUID();
+          
+          const { error: createErr } = await supabase.from('workspaces').insert({ id: newId, name, slug, owner_id: user.id });
+          if (!createErr) {
+             const newWs: Workspace = { id: newId, name, slug, owner_id: user.id, plan: 'free', status: 'active', logo_url: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+             ws = [newWs];
+          }
+        } catch (e) {
+          console.error('Failed to auto-create workspace', e);
+        }
+      }
+
       setWorkspaces(ws);
       const saved = localStorage.getItem('np_workspace_id');
       const active = ws.find(w => w.id === saved) ?? ws[0] ?? null;
@@ -57,11 +75,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const loadWorkspaceData = useCallback(async (wsId: string) => {
     const [{ data: mems }, { data: sub }, { data: bal }] = await Promise.all([
-      supabase.from('workspace_members').select('*, profiles(*)').eq('workspace_id', wsId),
+      supabase.from('workspace_members').select('*').eq('workspace_id', wsId),
       supabase.from('subscriptions').select('*, plans(*)').eq('workspace_id', wsId).single(),
       supabase.from('credit_balances').select('balance').eq('workspace_id', wsId).single(),
     ]);
-    if (mems) setMembers(mems as WorkspaceMember[]);
+    
+    if (mems && mems.length > 0) {
+      const userIds = mems.map(m => m.user_id);
+      const { data: profiles } = await supabase.from('profiles').select('*').in('id', userIds);
+      const mergedMembers = mems.map(m => ({
+        ...m,
+        profiles: profiles?.find(p => p.id === m.user_id) || null
+      }));
+      setMembers(mergedMembers as unknown as WorkspaceMember[]);
+    } else {
+      setMembers([]);
+    }
+    
     if (sub) setSubscription(sub as Subscription);
     if (bal) setCredits(bal.balance);
   }, []);
@@ -77,9 +107,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const createWorkspace = async (name: string): Promise<Workspace> => {
     if (!user) throw new Error('Not authenticated');
     const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
-    const { data, error } = await supabase.from('workspaces').insert({ name, slug, owner_id: user.id }).select().single();
+    const newId = crypto.randomUUID();
+    
+    // Insert without returning to avoid RLS select failures
+    const { error } = await supabase.from('workspaces').insert({ id: newId, name, slug, owner_id: user.id });
     if (error) throw error;
-    const ws = data as Workspace;
+    
+    // Construct local object
+    const ws: Workspace = { id: newId, name, slug, owner_id: user.id, plan: 'free', status: 'active', logo_url: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    
     setWorkspaces(prev => [...prev, ws]);
     setWorkspace(ws);
     localStorage.setItem('np_workspace_id', ws.id);

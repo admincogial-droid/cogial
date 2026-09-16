@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useWorkspace } from '@/context/WorkspaceContext';
 import { supabase } from '@/lib/supabase';
-import type { Plan, Subscription } from '@/types';
-import { Check, CreditCard, Zap, AlertTriangle } from 'lucide-react';
+import type { Plan } from '@/types';
+import { Check, Zap, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { isSupabaseConfigured } from '@/lib/supabase';
 

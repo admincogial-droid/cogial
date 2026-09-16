@@ -91,6 +91,14 @@ export interface Content {
   readability_score: number | null;
   meta_title: string | null;
   meta_description: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  primary_keyword?: string | null;
+  secondary_keywords?: string[];
+  excerpt?: string | null;
+  reading_time?: number;
+  character_count?: number;
+  published_at?: string | null;
   slug: string | null;
   tags: string[];
   is_favorite: boolean;
@@ -358,3 +366,24 @@ export interface DashboardStats {
   recentContent: Content[];
   usageByDay: { date: string; credits: number; generations: number }[];
 }
+
+export interface DashboardMetrics {
+  credits_remaining: number;
+  credits_used: number;
+  credits_limit: number;
+  content_created: number;
+  words_generated: number;
+  published_articles: number;
+  affiliate_clicks: number;
+  daily_credit_usage: { date: string; credits: number; generations: number }[];
+  recent_content: Array<{ id: string; title: string; type: string; status: string; word_count: number; created_at: string; updated_at?: string; published_at?: string | null }>;
+  recent_generations: Array<{ id: string; tool_id: string; model: string; status: string; credits_used: number; created_at: string }>;
+}
+
+export interface SearchResult {
+  contents: Array<{ id: string; title: string; type: string; status: string; created_at: string }>;
+  projects: Array<{ id: string; name: string; description: string | null; created_at: string }>;
+  templates: Array<{ id: string; name: string; category: string; description: string | null }>;
+  keywords: Array<{ id: string; keyword: string; intent: string | null; volume: number | null; difficulty: number | null }>;
+}
+

@@ -10,16 +10,18 @@ import { Loader2 } from 'lucide-react';
 // ─── Public Pages ─────────────────────────────────────────────────
 import NotFound from './pages/NotFound';
 import Landing from './pages/public/Landing';
-const Features = NotFound;
-const Pricing = NotFound;
-const About = NotFound;
-const Contact = NotFound;
-const FAQ = NotFound;
-const BlogList = NotFound;
-const BlogPost = NotFound;
-const Privacy = NotFound;
-const Terms = NotFound;
-const Refund = NotFound;
+import {
+  FeaturesPage as Features,
+  PricingPage as Pricing,
+  AboutPage as About,
+  ContactPage as Contact,
+  FAQPage as FAQ,
+  BlogListPage as BlogList,
+  BlogPostPage as BlogPost,
+  PrivacyPage as Privacy,
+  TermsPage as Terms,
+  RefundPage as Refund,
+} from './pages/public/PublicPages';
 
 // ─── Auth Pages ───────────────────────────────────────────────────
 const Login = lazy(() => import('./pages/auth/Login'));
@@ -31,29 +33,28 @@ const Onboarding = lazy(() => import('./pages/auth/Onboarding'));
 // ─── Dashboard Pages ──────────────────────────────────────────────
 const DashboardHome = lazy(() => import('./pages/app/DashboardHome'));
 const AIWriter = lazy(() => import('./pages/app/ai/AIWriter'));
-const ArticleGenerator = NotFound;
 const BulkGenerator = lazy(() => import('./pages/app/ai/BulkGenerator'));
-const ProductReview = NotFound;
 const ContentLibrary = lazy(() => import('./pages/app/content/ContentLibrary'));
 const ContentEditor = lazy(() => import('./pages/app/content/ContentEditor'));
-const Templates = NotFound;
-const BrandVoice = NotFound;
-const Projects = NotFound;
-const ProjectDetail = NotFound;
+const Templates = lazy(() => import('./pages/app/content/Templates'));
+const BrandVoice = lazy(() => import('./pages/app/content/BrandVoice'));
+
+const Projects = lazy(() => import('./pages/app/workspace/Projects'));
+const ProjectDetail = lazy(() => import('./pages/app/workspace/ProjectDetail'));
+
 const KeywordExplorer = lazy(() => import('./pages/app/seo/KeywordExplorer'));
 const KeywordClustering = lazy(() => import('./pages/app/seo/KeywordClustering'));
-const CompetitorAnalysis = NotFound;
-const AffiliateDashboard = NotFound;
-const AffiliateLinks = lazy(() => import('./pages/app/affiliate/AffiliateLinks'));
-const AffiliateProducts = NotFound;
-const AffiliateCampaigns = NotFound;
+const CompetitorAnalysis = lazy(() => import('./pages/app/seo/CompetitorAnalysis'));
+
+const AffiliateHub = lazy(() => import('./pages/app/affiliate/AffiliateHub'));
+
 const AutomationPage = lazy(() => import('./pages/app/automation/AutomationPage'));
 const IntegrationsHub = lazy(() => import('./pages/app/integrations/IntegrationsHub'));
 const AnalyticsDashboard = lazy(() => import('./pages/app/analytics/AnalyticsDashboard'));
 const BillingPage = lazy(() => import('./pages/app/billing/BillingPage'));
 const TeamPage = lazy(() => import('./pages/app/settings/TeamPage'));
 const SettingsPage = lazy(() => import('./pages/app/settings/SettingsPage'));
-const HelpPage = NotFound;
+const HelpPage = lazy(() => import('./pages/app/workspace/HelpPage'));
 const ToolsDashboard = lazy(() => import('./pages/app/tools/ToolsDashboard'));
 const ToolSlug = lazy(() => import('./pages/app/tools/ToolSlug'));
 const GenerationHistory = lazy(() => import('./pages/app/tools/GenerationHistory'));
@@ -65,8 +66,6 @@ const AdminWorkspaces = NotFound;
 const AdminAIUsage = NotFound;
 const AdminFeatureFlags = NotFound;
 const AdminBlog = NotFound;
-
-// ─── Other ────────────────────────────────────────────────────────
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60 * 1000, retry: 1 } },
@@ -111,25 +110,25 @@ export default function App() {
                 {/* Dashboard */}
                 <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
                 <Route path="/dashboard/ai-writer" element={<ProtectedRoute><AIWriter /></ProtectedRoute>} />
-                <Route path="/dashboard/ai-writer/article" element={<ProtectedRoute><ArticleGenerator /></ProtectedRoute>} />
-                <Route path="/dashboard/ai-writer/review" element={<ProtectedRoute><ProductReview /></ProtectedRoute>} />
+                <Route path="/dashboard/ai-writer/article" element={<ProtectedRoute><AIWriter /></ProtectedRoute>} />
+                <Route path="/dashboard/ai-writer/review" element={<ProtectedRoute><AIWriter /></ProtectedRoute>} />
                 <Route path="/dashboard/bulk" element={<ProtectedRoute><BulkGenerator /></ProtectedRoute>} />
                 <Route path="/dashboard/content" element={<ProtectedRoute><ContentLibrary /></ProtectedRoute>} />
                 <Route path="/dashboard/content/:id" element={<ProtectedRoute><ContentEditor /></ProtectedRoute>} />
+                <Route path="/dashboard/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
+                <Route path="/dashboard/brand-voice" element={<ProtectedRoute><BrandVoice /></ProtectedRoute>} />
                 <Route path="/dashboard/tools" element={<ProtectedRoute><ToolsDashboard /></ProtectedRoute>} />
                 <Route path="/dashboard/tools/:toolId" element={<ProtectedRoute><ToolSlug /></ProtectedRoute>} />
                 <Route path="/dashboard/history" element={<ProtectedRoute><GenerationHistory /></ProtectedRoute>} />
-                <Route path="/dashboard/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
-                <Route path="/dashboard/brand-voice" element={<ProtectedRoute><BrandVoice /></ProtectedRoute>} />
                 <Route path="/dashboard/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                 <Route path="/dashboard/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
                 <Route path="/dashboard/seo/keywords" element={<ProtectedRoute><KeywordExplorer /></ProtectedRoute>} />
                 <Route path="/dashboard/seo/clusters" element={<ProtectedRoute><KeywordClustering /></ProtectedRoute>} />
                 <Route path="/dashboard/seo/competitors" element={<ProtectedRoute><CompetitorAnalysis /></ProtectedRoute>} />
-                <Route path="/dashboard/affiliate" element={<ProtectedRoute><AffiliateDashboard /></ProtectedRoute>} />
-                <Route path="/dashboard/affiliate/links" element={<ProtectedRoute><AffiliateLinks /></ProtectedRoute>} />
-                <Route path="/dashboard/affiliate/products" element={<ProtectedRoute><AffiliateProducts /></ProtectedRoute>} />
-                <Route path="/dashboard/affiliate/campaigns" element={<ProtectedRoute><AffiliateCampaigns /></ProtectedRoute>} />
+                <Route path="/dashboard/affiliate" element={<ProtectedRoute><AffiliateHub /></ProtectedRoute>} />
+                <Route path="/dashboard/affiliate/links" element={<ProtectedRoute><AffiliateHub /></ProtectedRoute>} />
+                <Route path="/dashboard/affiliate/products" element={<ProtectedRoute><AffiliateHub /></ProtectedRoute>} />
+                <Route path="/dashboard/affiliate/campaigns" element={<ProtectedRoute><AffiliateHub /></ProtectedRoute>} />
                 <Route path="/dashboard/automation" element={<ProtectedRoute><AutomationPage /></ProtectedRoute>} />
                 <Route path="/dashboard/integrations" element={<ProtectedRoute><IntegrationsHub /></ProtectedRoute>} />
                 <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />

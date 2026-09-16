@@ -4,7 +4,7 @@ import { useWorkspace } from '@/context/WorkspaceContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import type { Automation } from '@/types';
-import { Plus, Trash2, ToggleLeft, ToggleRight, Zap, Play } from 'lucide-react';
+import { Plus, Trash2, ToggleLeft, ToggleRight, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatRelativeTime } from '@/lib/utils';
 

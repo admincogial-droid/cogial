@@ -14,36 +14,66 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     if (!workspace) return;
     const load = async () => {
-      const [contents, gens, clicks] = await Promise.all([
-        supabase.from('contents').select('created_at, word_count, type').eq('workspace_id', workspace.id),
-        supabase.from('generations').select('created_at, credits_used').eq('workspace_id', workspace.id),
-        supabase.from('affiliate_links').select('click_count').eq('workspace_id', workspace.id),
-      ]);
-      const c = contents.data ?? [];
-      const g = gens.data ?? [];
-      const days = Array.from({ length: 30 }, (_, i) => {
-        const d = new Date(); d.setDate(d.getDate() - (29 - i));
-        const ds = d.toISOString().slice(0, 10);
-        return {
-          date: ds.slice(5),
-          count: c.filter(x => x.created_at.slice(0, 10) === ds).length,
-          credits: g.filter(x => x.created_at.slice(0, 10) === ds).reduce((s: number, x: {credits_used:number}) => s + x.credits_used, 0),
-        };
-      });
-      const typeMap: Record<string, number> = {};
-      c.forEach(x => { typeMap[x.type] = (typeMap[x.type] ?? 0) + 1; });
-      setData({
-        contentByDay: days.map(d => ({ date: d.date, count: d.count })),
-        creditsByDay: days.map(d => ({ date: d.date, credits: d.credits })),
-        contentByType: Object.entries(typeMap).map(([name, value]) => ({ name, value })),
-        totals: {
-          content: c.length,
-          words: c.reduce((s, x) => s + x.word_count, 0),
-          generations: g.length,
-          clicks: (clicks.data ?? []).reduce((s, x) => s + x.click_count, 0),
-        },
-      });
-      setLoading(false);
+      setLoading(true);
+      try {
+        // @ts-ignore
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('get_analytics_overview', {
+          p_workspace_id: workspace.id,
+          p_days: 30,
+        });
+
+        if (!rpcErr && rpcData) {
+          const res = rpcData as any;
+          setData({
+            contentByDay: (res.content_by_day || []).map((d: any) => ({ date: d.date.slice(5), count: Number(d.count) })),
+            creditsByDay: (res.credits_by_day || []).map((d: any) => ({ date: d.date.slice(5), credits: Number(d.credits) })),
+            contentByType: (res.content_by_type || []).map((t: any) => ({ name: t.name, value: Number(t.value) })),
+            totals: {
+              content: Number(res.totals?.content || 0),
+              words: Number(res.totals?.words || 0),
+              generations: Number(res.totals?.generations || 0),
+              clicks: Number(res.totals?.clicks || 0),
+            },
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Fallback: direct aggregate query
+        const [contents, gens, clicks] = await Promise.all([
+          supabase.from('contents').select('created_at, word_count, type').eq('workspace_id', workspace.id),
+          supabase.from('ai_generations').select('created_at, credits_used').eq('workspace_id', workspace.id),
+          supabase.from('affiliate_links').select('click_count').eq('workspace_id', workspace.id),
+        ]);
+        const c = (contents.data ?? []) as any[];
+        const g = (gens.data ?? []) as any[];
+        const days = Array.from({ length: 30 }, (_, i) => {
+          const d = new Date(); d.setDate(d.getDate() - (29 - i));
+          const ds = d.toISOString().slice(0, 10);
+          return {
+            date: ds.slice(5),
+            count: c.filter(x => x.created_at.slice(0, 10) === ds).length,
+            credits: g.filter(x => x.created_at.slice(0, 10) === ds).reduce((s: number, x: {credits_used:number}) => s + (x.credits_used || 0), 0),
+          };
+        });
+        const typeMap: Record<string, number> = {};
+        c.forEach(x => { typeMap[x.type] = (typeMap[x.type] ?? 0) + 1; });
+        setData({
+          contentByDay: days.map(d => ({ date: d.date, count: d.count })),
+          creditsByDay: days.map(d => ({ date: d.date, credits: d.credits })),
+          contentByType: Object.entries(typeMap).map(([name, value]) => ({ name, value })),
+          totals: {
+            content: c.length,
+            words: c.reduce((s, x) => s + (x.word_count || 0), 0),
+            generations: g.length,
+            clicks: (clicks.data ?? []).reduce((s, x) => s + (x.click_count || 0), 0),
+          },
+        });
+      } catch (err) {
+        console.error('Failed to load analytics overview:', err);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [workspace]);

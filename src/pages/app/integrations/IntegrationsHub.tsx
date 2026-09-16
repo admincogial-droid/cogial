@@ -4,7 +4,7 @@ import { useWorkspace } from '@/context/WorkspaceContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import type { Integration } from '@/types';
-import { Plus, Trash2, Cpu, Globe, Code2, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
+import { Trash2, Cpu, Globe, Code2, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const INTEGRATION_TYPES = [
@@ -25,7 +25,7 @@ export default function IntegrationsHub() {
   const { workspace } = useWorkspace();
   const { user } = useAuth();
   const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [adding, setAdding] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -61,7 +61,7 @@ export default function IntegrationsHub() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl">
-        <div className="mb-6"><h1 className="text-2xl font-bold">Integrations</h1><p className="text-muted-foreground text-sm mt-1">Connect NovaPilot to your publishing platforms.</p></div>
+        <div className="mb-6"><h1 className="text-2xl font-bold">Integrations</h1><p className="text-muted-foreground text-sm mt-1">Connect PressLine to your publishing platforms.</p></div>
 
         {/* Available integrations */}
         <div className="grid sm:grid-cols-2 gap-4 mb-8">

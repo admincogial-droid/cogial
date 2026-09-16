@@ -1,7 +1,7 @@
 export interface AIToolConfig {
   id: string;
   name: string;
-  category: string;
+  category: 'writing' | 'marketing' | 'social' | 'youtube' | 'video' | 'seo' | 'creative' | 'voice' | 'images';
   description: string;
   creditCost: number;
   provider: 'openrouter' | 'media';
@@ -18,274 +18,362 @@ export interface AIToolConfig {
 }
 
 export const AI_TOOLS: Record<string, AIToolConfig> = {
+  // ─── WRITING TOOLS ────────────────────────────────────────────────
   'cold-email': {
     id: 'cold-email',
-    name: 'Cold Email Script',
+    name: 'Cold Email Outreach',
     category: 'writing',
-    description: 'Generate highly-converting cold outreach emails.',
+    description: 'Generate high-converting cold outreach sequences that get opened and replied to.',
     creditCost: 2,
     provider: 'openrouter',
-    systemPrompt: 'You are an expert copywriter. Output JSON with `subject`, `preview_text`, `email_body`, `follow_up_email`, `alternative_subjects`, and `personalization_notes`.',
+    systemPrompt: 'You are an elite B2B sales copywriter. Output JSON with `subject_lines` (array of 3 variations), `email_body`, `follow_up_email`, and `call_to_action`.',
     inputs: [
-      { name: 'product', label: 'Product/Service', type: 'text', required: true },
-      { name: 'company', label: 'Company', type: 'text', required: true },
-      { name: 'industry', label: 'Target Industry', type: 'text', required: true },
-      { name: 'recipientRole', label: 'Recipient Role', type: 'text', required: true },
-      { name: 'painPoint', label: 'Pain Point', type: 'textarea', required: true },
-      { name: 'offer', label: 'Offer/Value Prop', type: 'textarea', required: true },
-      { name: 'tone', label: 'Tone', type: 'select', options: [{label: 'Professional', value: 'Professional'}, {label: 'Conversational', value: 'Conversational'}] },
-    ]
-  },
-  'social-posts': {
-    id: 'social-posts',
-    name: 'Social Media Posts',
-    category: 'social',
-    description: 'Create tailored posts for various platforms.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are an expert social media manager. Output JSON with `post`, `alternative_versions` (array of strings), `cta`, and `hashtags`.',
-    inputs: [
-      { name: 'topic', label: 'Topic', type: 'textarea', required: true },
-      { name: 'platform', label: 'Platform', type: 'select', options: [{label: 'LinkedIn', value: 'LinkedIn'}, {label: 'X/Twitter', value: 'X'}, {label: 'Instagram', value: 'Instagram'}, {label: 'Facebook', value: 'Facebook'}] },
-      { name: 'audience', label: 'Audience', type: 'text', required: true },
-      { name: 'goal', label: 'Goal', type: 'text', required: true },
-      { name: 'tone', label: 'Tone', type: 'select', options: [{label: 'Professional', value: 'professional'}, {label: 'Educational', value: 'educational'}, {label: 'Storytelling', value: 'storytelling'}] },
-    ]
-  },
-  'youtube-description': {
-    id: 'youtube-description',
-    name: 'YouTube Description',
-    category: 'youtube',
-    description: 'SEO-friendly descriptions with timestamps.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are a YouTube SEO expert. Output JSON with `title_suggestion`, `short_description`, `full_description`, `chapters` (if timestamps given), `keywords`, `hashtags`, and `cta`.',
-    inputs: [
-      { name: 'title', label: 'Video Title', type: 'text', required: true },
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'summary', label: 'Transcript/Summary', type: 'textarea', required: true },
-      { name: 'keywords', label: 'Keywords', type: 'text', required: true },
-      { name: 'channelName', label: 'Channel Name', type: 'text' },
-      { name: 'links', label: 'Links (Socials/Promos)', type: 'textarea' },
-    ]
-  },
-  'product-description': {
-    id: 'product-description',
-    name: 'Product Description',
-    category: 'writing',
-    description: 'Compelling descriptions for your products.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are an e-commerce copywriter. Output JSON with `short_description`, `long_description`, `bullet_benefits`, `features`, `seo_description`, and `cta`.',
-    inputs: [
-      { name: 'productName', label: 'Product Name', type: 'text', required: true },
-      { name: 'category', label: 'Product Category', type: 'text', required: true },
-      { name: 'features', label: 'Features', type: 'textarea', required: true },
-      { name: 'benefits', label: 'Benefits', type: 'textarea', required: true },
-      { name: 'targetCustomer', label: 'Target Customer', type: 'text', required: true },
-      { name: 'brand', label: 'Brand', type: 'text' },
-    ]
+      { name: 'product', label: 'Product / Offer', type: 'text', placeholder: 'e.g. AI-powered SEO content platform', required: true },
+      { name: 'recipientRole', label: 'Target Prospect Role', type: 'text', placeholder: 'e.g. Head of Growth or VP Marketing', required: true },
+      { name: 'painPoint', label: 'Core Problem / Pain Point', type: 'textarea', placeholder: 'e.g. Writers spending 15+ hours on drafts with poor organic rank', required: true },
+      { name: 'tone', label: 'Tone', type: 'select', options: [{ label: 'Professional', value: 'professional' }, { label: 'Conversational', value: 'conversational' }, { label: 'Direct & Punchy', value: 'direct' }] },
+    ],
   },
   'article-rewriter': {
     id: 'article-rewriter',
-    name: 'Article Rewriter',
+    name: 'Article Rewriter & Polisher',
     category: 'writing',
-    description: 'Rewrite articles for clarity or different tone.',
+    description: 'Rewrite existing articles for clarity, modern flow, or higher engagement.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a master editor. Rewrite the provided text. Output JSON with `rewritten_content`, `key_improvements_made` (array of strings), and `estimated_readability_grade`.',
+    inputs: [
+      { name: 'article', label: 'Original Content', type: 'textarea', placeholder: 'Paste text or draft to rewrite…', required: true },
+      { name: 'mode', label: 'Rewrite Style', type: 'select', options: [{ label: 'Make More Engaging', value: 'engaging' }, { label: 'Simplify & Clarify', value: 'simplify' }, { label: 'Executive / Authoritative', value: 'authoritative' }, { label: 'SEO-Optimized', value: 'seo' }] },
+    ],
+  },
+  'paraphraser': {
+    id: 'paraphraser',
+    name: 'Instant Paraphraser',
+    category: 'writing',
+    description: 'Restructure and rephrase sentences without changing core meaning.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are an advanced linguist. Output JSON with `variations` (array of 4 paraphrased versions: casual, formal, concise, creative).',
+    inputs: [
+      { name: 'text', label: 'Sentence or Paragraph', type: 'textarea', placeholder: 'Enter sentence to paraphrase…', required: true },
+    ],
+  },
+  'summarizer': {
+    id: 'summarizer',
+    name: 'Executive Summarizer',
+    category: 'writing',
+    description: 'Condense long articles, reports, or transcripts into key takeaways.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are a research analyst. Output JSON with `one_sentence_summary`, `bullet_takeaways` (array of strings), and `actionable_next_steps`.',
+    inputs: [
+      { name: 'text', label: 'Content to Summarize', type: 'textarea', placeholder: 'Paste article or transcript…', required: true },
+    ],
+  },
+  'grammar-improver': {
+    id: 'grammar-improver',
+    name: 'Grammar & Style Fixer',
+    category: 'writing',
+    description: 'Fix syntax, grammar, spelling, and passive voice issues.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are a senior copyeditor. Output JSON with `corrected_text`, `corrections` (array of objects with `issue` and `fix`), and `overall_notes`.',
+    inputs: [
+      { name: 'text', label: 'Draft Text', type: 'textarea', placeholder: 'Paste text to inspect…', required: true },
+    ],
+  },
+  'newsletter-generator': {
+    id: 'newsletter-generator',
+    name: 'Email Newsletter Writer',
+    category: 'writing',
+    description: 'Draft engaging, high-open-rate weekly newsletters with sections and CTAs.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a professional newsletter writer. Output JSON with `subject_line`, `preview_text`, `intro_hook`, `body_story`, `takeaways`, and `cta`.',
+    inputs: [
+      { name: 'topic', label: 'Newsletter Topic / Theme', type: 'text', placeholder: 'e.g. The Future of AI in Search Engines', required: true },
+      { name: 'keyPoints', label: 'Key Stories or Updates', type: 'textarea', placeholder: 'List 2-3 main takeaways to cover…', required: true },
+      { name: 'cta', label: 'Call to Action / Link', type: 'text', placeholder: 'e.g. Check out our new case study' },
+    ],
+  },
+  'faq-generator': {
+    id: 'faq-generator',
+    name: 'FAQ Generator',
+    category: 'writing',
+    description: 'Generate comprehensive, relevant FAQs based on your product or topic.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are a customer experience copywriter. Output JSON with `faqs` (array of objects with `question` and `answer`).',
+    inputs: [
+      { name: 'topic', label: 'Product / Subject', type: 'text', placeholder: 'e.g. PressLine Content Automation', required: true },
+      { name: 'audience', label: 'Target Audience', type: 'text', placeholder: 'e.g. Small business marketing teams' },
+    ],
+  },
+
+  // ─── MARKETING TOOLS ──────────────────────────────────────────────
+  'ad-copy': {
+    id: 'ad-copy',
+    name: 'Omnichannel Ad Copy',
+    category: 'marketing',
+    description: 'Generate high-CTR ad copy tailored for Facebook, Google, or LinkedIn.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a world-class performance marketing copywriter. Output JSON with `headlines` (array of 5 options), `primary_text_variations` (array of 3), `descriptions` (array of 3), and `call_to_action`.',
+    inputs: [
+      { name: 'product', label: 'Product / Service Name', type: 'text', placeholder: 'e.g. PressLine AI', required: true },
+      { name: 'targetAudience', label: 'Target Audience', type: 'text', placeholder: 'e.g. Content creators & affiliate marketers', required: true },
+      { name: 'valueProp', label: 'Unique Value Proposition', type: 'textarea', placeholder: 'e.g. Rank faster on Google without writing for 20 hours', required: true },
+      { name: 'platform', label: 'Ad Platform', type: 'select', options: [{ label: 'Facebook / Instagram', value: 'meta' }, { label: 'Google Search Ads', value: 'google' }, { label: 'LinkedIn Ads', value: 'linkedin' }] },
+    ],
+  },
+  'landing-page-copy': {
+    id: 'landing-page-copy',
+    name: 'Landing Page Hero & Copy',
+    category: 'marketing',
+    description: 'Create high-converting landing page headlines, subheads, and benefit sections.',
     creditCost: 3,
     provider: 'openrouter',
-    systemPrompt: 'You are an expert editor. Rewrite the article. Output JSON with `rewritten_article`, `summary`, and `seo_notes`. Ensure meaning is kept while changing tone or readability as requested.',
+    systemPrompt: 'You are a conversion rate optimization specialist. Output JSON with `hero_headline`, `hero_subheadline`, `primary_cta`, `feature_bullets` (array of objects with `title` and `description`), and `social_proof_prompt`.',
     inputs: [
-      { name: 'article', label: 'Paste Article', type: 'textarea', required: true },
-      { name: 'mode', label: 'Rewrite Mode', type: 'select', options: [{label: 'Professional', value: 'professional'}, {label: 'Conversational', value: 'conversational'}, {label: 'Simplify', value: 'simplify'}, {label: 'SEO Optimize', value: 'seo'}] },
-    ]
+      { name: 'product', label: 'Product Name & Category', type: 'text', placeholder: 'e.g. PressLine SaaS Content Studio', required: true },
+      { name: 'benefit', label: 'Main Customer Benefit', type: 'textarea', placeholder: 'e.g. Turn raw keywords into fully published articles in minutes', required: true },
+      { name: 'targetMarket', label: 'Target Customer', type: 'text', placeholder: 'e.g. Digital marketing agencies and creators' },
+    ],
   },
-  'video-script': {
-    id: 'video-script',
-    name: 'Video Script Generator',
-    category: 'video',
-    description: 'Full video scripts with hooks and outlines.',
-    creditCost: 5,
-    provider: 'openrouter',
-    systemPrompt: 'You are a master scriptwriter. Output JSON with `hook`, `intro`, `body`, `transitions`, `examples`, `cta`, `outro`, `b_roll_suggestions`, and `on_screen_text`.',
-    inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'platform', label: 'Platform (e.g. YouTube, TikTok)', type: 'text', required: true },
-      { name: 'audience', label: 'Audience', type: 'text', required: true },
-      { name: 'duration', label: 'Duration', type: 'text' },
-      { name: 'outline', label: 'Outline/Research (Optional)', type: 'textarea' },
-    ]
-  },
-  'paragraph-writer': {
-    id: 'paragraph-writer',
-    name: 'Paragraph Writer',
-    category: 'writing',
-    description: 'Generate quick paragraphs on any topic.',
+  'pas-copywriter': {
+    id: 'pas-copywriter',
+    name: 'PAS Framework Copywriter',
+    category: 'marketing',
+    description: 'Use the proven Problem-Agitation-Solution marketing formula.',
     creditCost: 1,
     provider: 'openrouter',
-    systemPrompt: 'You are a versatile writer. Output JSON with `paragraphs` (array of strings) and `alternatives` (array of strings).',
+    systemPrompt: 'You are a direct-response marketing master. Output JSON with `problem`, `agitation`, `solution`, and `call_to_action`.',
     inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'purpose', label: 'Purpose', type: 'text', required: true },
-      { name: 'tone', label: 'Tone', type: 'text', required: true },
-    ]
+      { name: 'topic', label: 'Product / Problem', type: 'text', placeholder: 'e.g. Maintaining a consistent blog publishing schedule', required: true },
+      { name: 'solution', label: 'Your Solution', type: 'text', placeholder: 'e.g. Automated AI article generation pipeline', required: true },
+    ],
   },
-  'social-tags': {
-    id: 'social-tags',
-    name: 'Social Tags Generator',
+  'customer-persona': {
+    id: 'customer-persona',
+    name: 'Buyer Persona Generator',
+    category: 'marketing',
+    description: 'Generate detailed customer avatars with pain points, objections, and triggers.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a customer research strategist. Output JSON with `persona_name`, `role`, `demographics`, `core_goals`, `biggest_pains`, `common_objections`, and `trigger_events`.',
+    inputs: [
+      { name: 'industry', label: 'Industry / Niche', type: 'text', placeholder: 'e.g. E-commerce apparel', required: true },
+      { name: 'productPrice', label: 'Price Range', type: 'text', placeholder: 'e.g. Mid-range ($50-$150)' },
+    ],
+  },
+
+  // ─── SOCIAL MEDIA ─────────────────────────────────────────────────
+  'social-posts': {
+    id: 'social-posts',
+    name: 'Social Media Multi-Post',
     category: 'social',
-    description: 'Relevant hashtags and tags for your posts.',
-    creditCost: 1,
+    description: 'Create tailored posts for LinkedIn, X (Twitter), and Instagram.',
+    creditCost: 2,
     provider: 'openrouter',
-    systemPrompt: 'You are a social media growth expert. Output JSON with `primary_tags`, `secondary_tags`, `niche_tags`, and `trending_style_suggestions` (all string arrays). Do not claim tags are definitively trending unless it is universally true.',
+    systemPrompt: 'You are an organic social media growth consultant. Output JSON with `post`, `alternative_versions` (array of strings), `call_to_action`, and `hashtags` (array).',
     inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'platform', label: 'Platform', type: 'select', options: [{label: 'Instagram', value: 'Instagram'}, {label: 'TikTok', value: 'TikTok'}, {label: 'YouTube', value: 'YouTube'}] },
-    ]
-  },
-  'meta-title': {
-    id: 'meta-title',
-    name: 'Meta Title Generator',
-    category: 'seo',
-    description: 'SEO-optimized meta titles and descriptions.',
-    creditCost: 1,
-    provider: 'openrouter',
-    systemPrompt: 'You are an SEO expert. Output JSON with `title_options` (array of strings), `character_counts`, `keyword_placement_analysis`, and `seo_notes`.',
-    inputs: [
-      { name: 'topic', label: 'Page Topic', type: 'text', required: true },
-      { name: 'primaryKeyword', label: 'Primary Keyword', type: 'text', required: true },
-      { name: 'secondaryKeyword', label: 'Secondary Keyword', type: 'text' },
-      { name: 'brand', label: 'Brand', type: 'text' },
-    ]
+      { name: 'topic', label: 'Topic or Article to Share', type: 'textarea', placeholder: 'Describe what you want to post about…', required: true },
+      { name: 'platform', label: 'Target Platform', type: 'select', options: [{ label: 'LinkedIn', value: 'LinkedIn' }, { label: 'X (Twitter)', value: 'X' }, { label: 'Instagram', value: 'Instagram' }, { label: 'Threads', value: 'Threads' }] },
+      { name: 'tone', label: 'Tone', type: 'select', options: [{ label: 'Thought Leadership', value: 'leadership' }, { label: 'Casual & Storytelling', value: 'storytelling' }, { label: 'Punchy & Provocative', value: 'punchy' }] },
+    ],
   },
   'hooks': {
     id: 'hooks',
-    name: 'Hook Generator',
+    name: 'Viral Hook Generator',
     category: 'social',
-    description: 'Catchy hooks to grab your audience\'s attention.',
+    description: 'Craft curiosity-inducing opening lines that stop the scroll.',
     creditCost: 1,
     provider: 'openrouter',
-    systemPrompt: 'You are an attention-retention expert. Output JSON with `question_hooks`, `curiosity_hooks`, `story_hooks`, `contrarian_hooks`, `problem_hooks`, and `benefit_hooks` (each an array of strings).',
+    systemPrompt: 'You are a short-form content retention specialist. Output JSON with `question_hooks` (array), `contrarian_hooks` (array), `statistic_hooks` (array), and `story_hooks` (array).',
     inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'platform', label: 'Platform', type: 'text', required: true },
-      { name: 'audience', label: 'Audience', type: 'text', required: true },
-    ]
+      { name: 'topic', label: 'Subject / Video Concept', type: 'text', placeholder: 'e.g. Why most blogs get zero traffic', required: true },
+      { name: 'platform', label: 'Platform', type: 'select', options: [{ label: 'X / Twitter', value: 'Twitter' }, { label: 'LinkedIn', value: 'LinkedIn' }, { label: 'TikTok / Reels', value: 'Shorts' }] },
+    ],
   },
-  'topic-research': {
-    id: 'topic-research',
-    name: 'Topic Research',
-    category: 'seo',
-    description: 'Detailed research overview and angles.',
-    creditCost: 5,
-    provider: 'openrouter',
-    systemPrompt: 'You are a research analyst. Output JSON with `topic_overview`, `subtopics`, `key_questions`, `audience_questions`, `search_intent`, `content_angles`, `potential_article_ideas`, `faq_ideas`, `content_gaps`, and `outline_suggestions`. Clarify that AI research is not live web search.',
-    inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'audience', label: 'Audience', type: 'text', required: true },
-      { name: 'industry', label: 'Industry', type: 'text' },
-    ]
-  },
-  'script-outline': {
-    id: 'script-outline',
-    name: 'Script Outline',
-    category: 'video',
-    description: 'Structured outlines for your videos.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are a video strategist. Output JSON with `hook`, `opening`, `main_sections` (array of objects with title, points, estimated_timing), `transitions`, `cta`, and `ending`.',
-    inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'duration', label: 'Duration (e.g. 5 mins)', type: 'text' },
-      { name: 'audience', label: 'Audience', type: 'text' },
-    ]
-  },
-  'metadata': {
-    id: 'metadata',
-    name: 'Metadata Generator',
-    category: 'seo',
-    description: 'Comprehensive metadata for your content.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are an SEO metadata specialist. Output JSON with `title_suggestions`, `description`, `keywords`, `tags`, `hashtags`, `category_suggestions`, `cta`, and `seo_notes`.',
-    inputs: [
-      { name: 'title', label: 'Title', type: 'text', required: true },
-      { name: 'topic', label: 'Topic', type: 'textarea', required: true },
-      { name: 'platform', label: 'Platform', type: 'text' },
-    ]
-  },
-  'script-summarizer': {
-    id: 'script-summarizer',
-    name: 'Script Summarizer',
-    category: 'video',
-    description: 'Summarize long scripts into key points.',
-    creditCost: 2,
-    provider: 'openrouter',
-    systemPrompt: 'You are an expert summarizer. Output JSON with `short_summary`, `detailed_summary`, `key_points`, `main_argument`, `important_quotes`, `chapters`, `social_snippets`, and `youtube_description_idea`.',
-    inputs: [
-      { name: 'script', label: 'Paste Script', type: 'textarea', required: true },
-    ]
-  },
-  'documentary': {
-    id: 'documentary',
-    name: 'Documentary Script',
-    category: 'video',
-    description: 'Long-form, detailed documentary scripts.',
-    creditCost: 10,
-    provider: 'openrouter',
-    systemPrompt: 'You are a professional documentary filmmaker. Output JSON with `cold_open`, `narrator_introduction`, `historical_context`, `chapter_structure`, `narration`, `scene_descriptions`, `interview_placeholders`, `b_roll_suggestions`, and `conclusion`.',
-    inputs: [
-      { name: 'subject', label: 'Subject', type: 'text', required: true },
-      { name: 'period', label: 'Historical Period', type: 'text' },
-      { name: 'style', label: 'Narrative Style', type: 'text' },
-      { name: 'research', label: 'Research/Sources', type: 'textarea' },
-    ]
-  },
-  'community-post': {
-    id: 'community-post',
-    name: 'Community Post Generator',
+  'social-tags': {
+    id: 'social-tags',
+    name: 'Hashtag & Tag Generator',
     category: 'social',
-    description: 'Engaging posts for community tabs and groups.',
+    description: 'Generate high-relevance tags and hashtags for organic discoverability.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'Output JSON with `primary_hashtags` (array), `niche_hashtags` (array), and `trending_context_tags` (array).',
+    inputs: [
+      { name: 'topic', label: 'Post Topic', type: 'text', placeholder: 'e.g. Remote work tips and productivity', required: true },
+      { name: 'platform', label: 'Platform', type: 'select', options: [{ label: 'Instagram', value: 'Instagram' }, { label: 'LinkedIn', value: 'LinkedIn' }, { label: 'YouTube Shorts', value: 'YouTube' }] },
+    ],
+  },
+
+  // ─── YOUTUBE ──────────────────────────────────────────────────────
+  'youtube-description': {
+    id: 'youtube-description',
+    name: 'YouTube SEO Description',
+    category: 'youtube',
+    description: 'Rank higher with optimized YouTube descriptions, chapter markers, and links.',
     creditCost: 2,
     provider: 'openrouter',
-    systemPrompt: 'You are a community manager. Output JSON with `post`, `question`, `discussion_starter`, `poll_idea`, and `follow_up_comments`.',
+    systemPrompt: 'You are a YouTube SEO strategist. Output JSON with `title_suggestions` (array), `video_description`, `chapter_timestamps` (array), `tags` (array), and `cta`.',
     inputs: [
-      { name: 'topic', label: 'Topic', type: 'text', required: true },
-      { name: 'communityType', label: 'Community Type', type: 'select', options: [{label: 'YouTube Community', value: 'YouTube'}, {label: 'Facebook Group', value: 'Facebook'}, {label: 'Discord', value: 'Discord'}, {label: 'Reddit', value: 'Reddit'}] },
-    ]
+      { name: 'title', label: 'Video Title', type: 'text', placeholder: 'e.g. How to Build a SaaS in 2025', required: true },
+      { name: 'summary', label: 'Video Summary or Key Points', type: 'textarea', placeholder: 'Brief overview of what happens in the video…', required: true },
+      { name: 'keywords', label: 'Target Search Keywords', type: 'text', placeholder: 'e.g. saas, indie hacker, build in public' },
+    ],
   },
-  'thumbnail-generator': {
-    id: 'thumbnail-generator',
-    name: 'Thumbnail Generator',
-    category: 'creative',
-    description: 'AI-generated image thumbnails.',
-    creditCost: 5,
-    provider: 'media',
+  'youtube-titles': {
+    id: 'youtube-titles',
+    name: 'High-CTR YouTube Titles',
+    category: 'youtube',
+    description: 'Generate click-worthy YouTube titles with high Curiosity Gap scores.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are a MrBeast-style YouTube title strategist. Output JSON with `curiosity_titles` (array of 5), `search_optimized_titles` (array of 5), and `short_punchy_titles` (array of 5).',
     inputs: [
-      { name: 'videoTitle', label: 'Video Title', type: 'text', required: true },
-      { name: 'style', label: 'Visual Style', type: 'text' },
-    ]
+      { name: 'topic', label: 'Video Topic', type: 'text', placeholder: 'e.g. How I built a $10k/mo side project', required: true },
+    ],
   },
-  'text-to-voice': {
-    id: 'text-to-voice',
-    name: 'Text to Voiceover',
-    category: 'voice',
-    description: 'Realistic AI voiceovers for your scripts.',
+
+  // ─── VIDEO ────────────────────────────────────────────────────────
+  'video-script': {
+    id: 'video-script',
+    name: 'Full Video Scriptwriter',
+    category: 'video',
+    description: 'Draft complete spoken scripts with scene directions, b-roll cues, and pacing.',
     creditCost: 4,
-    provider: 'media',
+    provider: 'openrouter',
+    systemPrompt: 'You are a professional video scriptwriter. Output JSON with `hook`, `intro`, `scenes` (array of objects with `scene_number`, `visual_cue`, `narration`, `b_roll`), and `outro_cta`.',
     inputs: [
-      { name: 'text', label: 'Text/Script', type: 'textarea', required: true },
-      { name: 'voice', label: 'Voice Style', type: 'select', options: [{label: 'Professional', value: 'pro'}, {label: 'Energetic', value: 'energetic'}] },
-    ]
+      { name: 'topic', label: 'Video Concept', type: 'text', placeholder: 'e.g. Why Python is still dominating AI in 2025', required: true },
+      { name: 'targetDuration', label: 'Target Duration', type: 'select', options: [{ label: 'Short (60 seconds / Reel)', value: '60s' }, { label: 'Medium (3-5 minutes)', value: '4m' }, { label: 'Long (8-12 minutes)', value: '10m' }] },
+      { name: 'tone', label: 'Presenter Tone', type: 'text', placeholder: 'e.g. Energetic and accessible' },
+    ],
   },
-  'thumbnail-downloader': {
-    id: 'thumbnail-downloader',
-    name: 'Thumbnail Downloader',
-    category: 'creative',
-    description: 'Download public video thumbnails.',
+  'b-roll-generator': {
+    id: 'b-roll-generator',
+    name: 'B-Roll Shotlist Generator',
+    category: 'video',
+    description: 'Generate cinematic b-roll suggestions and visual cues for video editors.',
     creditCost: 1,
-    provider: 'media',
+    provider: 'openrouter',
+    systemPrompt: 'You are a video director. Output JSON with `b_roll_cues` (array of objects with `scene`, `camera_movement`, `lighting`, `description`).',
     inputs: [
-      { name: 'url', label: 'Public URL', type: 'text', required: true },
-    ]
+      { name: 'script', label: 'Script or Video Concept', type: 'textarea', placeholder: 'Paste your narration or scene outline…', required: true },
+    ],
+  },
+
+  // ─── SEO TOOLS ────────────────────────────────────────────────────
+  'meta-title': {
+    id: 'meta-title',
+    name: 'Meta Title & Description',
+    category: 'seo',
+    description: 'Generate Google-compliant meta titles (under 60 chars) and descriptions (under 160 chars).',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are an on-page SEO expert. Output JSON with `meta_titles` (array of objects with `title` and `character_count`), `meta_descriptions` (array of objects with `description` and `character_count`), and `primary_keyword_placement`.',
+    inputs: [
+      { name: 'topic', label: 'Page Topic', type: 'text', placeholder: 'e.g. Best Ergonomic Office Chairs', required: true },
+      { name: 'primaryKeyword', label: 'Target Keyword', type: 'text', placeholder: 'e.g. best ergonomic chair', required: true },
+      { name: 'brand', label: 'Brand Name (Optional)', type: 'text', placeholder: 'e.g. PressLine' },
+    ],
+  },
+  'seo-brief': {
+    id: 'seo-brief',
+    name: 'SEO Content Brief',
+    category: 'seo',
+    description: 'Generate an exhaustive content brief with search intent, headers, and semantic keywords.',
+    creditCost: 3,
+    provider: 'openrouter',
+    systemPrompt: 'You are a senior SEO strategist. Output JSON with `target_keyword`, `search_intent`, `recommended_word_count`, `h2_headings` (array), `h3_subheadings` (array), `semantic_entities` (array), and `internal_linking_suggestions` (array).',
+    inputs: [
+      { name: 'keyword', label: 'Target Keyword', type: 'text', placeholder: 'e.g. cloud database migration', required: true },
+      { name: 'audience', label: 'Target Audience', type: 'text', placeholder: 'e.g. DevOps and backend engineers' },
+    ],
+  },
+
+  // ─── CREATIVE ─────────────────────────────────────────────────────
+  'creative-metaphors': {
+    id: 'creative-metaphors',
+    name: 'Metaphor & Analogy Generator',
+    category: 'creative',
+    description: 'Explain complex concepts simply with memorable metaphors and analogies.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are an educational communicator. Output JSON with `analogies` (array of objects with `analogy_title`, `explanation`, `why_it_works`).',
+    inputs: [
+      { name: 'concept', label: 'Concept to Explain', type: 'text', placeholder: 'e.g. How Supabase Row Level Security works', required: true },
+      { name: 'audience', label: 'Audience Background', type: 'text', placeholder: 'e.g. Beginners with no technical knowledge' },
+    ],
+  },
+  'story-outline': {
+    id: 'story-outline',
+    name: 'Story Arc & Narrative Plan',
+    category: 'creative',
+    description: 'Outline brand stories, case studies, or fiction narratives.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a narrative architect. Output JSON with `premise`, `inciting_incident`, `rising_action`, `climax`, `resolution`, and `thematic_takeaway`.',
+    inputs: [
+      { name: 'premise', label: 'Premise or Real Scenario', type: 'textarea', placeholder: 'Describe the core situation…', required: true },
+    ],
+  },
+
+  // ─── VOICE ────────────────────────────────────────────────────────
+  'voice-script': {
+    id: 'voice-script',
+    name: 'Voiceover Audio Script',
+    category: 'voice',
+    description: 'Format scripts specifically for voice actors or text-to-speech engines with pause cues.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are an audio producer. Output JSON with `voiceover_script` (with [pause], [emphasis], and inflection tags), `tone_notes`, and `estimated_read_time_seconds`.',
+    inputs: [
+      { name: 'topic', label: 'Topic or Draft Text', type: 'textarea', placeholder: 'Enter text to adapt for audio speech…', required: true },
+      { name: 'pace', label: 'Pacing', type: 'select', options: [{ label: 'Normal / Natural', value: 'normal' }, { label: 'Fast & Energetic', value: 'fast' }, { label: 'Deliberate & Calm', value: 'calm' }] },
+    ],
+  },
+  'podcast-outline': {
+    id: 'podcast-outline',
+    name: 'Podcast Episode Guide',
+    category: 'voice',
+    description: 'Structured outlines for solo podcasts or guest interviews.',
+    creditCost: 2,
+    provider: 'openrouter',
+    systemPrompt: 'You are a podcast producer. Output JSON with `episode_title`, `guest_intro`, `segment_breakdown` (array with `segment_title` and `talking_points`), and `closing_wrap`.',
+    inputs: [
+      { name: 'topic', label: 'Episode Topic', type: 'text', placeholder: 'e.g. Bootstrapping AI SaaS to $50k MRR', required: true },
+      { name: 'guest', label: 'Guest Name / Background (Optional)', type: 'text', placeholder: 'e.g. Founder of an AI startup' },
+    ],
+  },
+
+  // ─── IMAGES ───────────────────────────────────────────────────────
+  'image-prompt': {
+    id: 'image-prompt',
+    name: 'AI Image Prompt Generator',
+    category: 'images',
+    description: 'Create detailed prompts for Midjourney, DALL-E 3, Stable Diffusion, or Flux.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are an AI prompt engineer. Output JSON with `midjourney_prompt`, `flux_prompt`, `dall_e_prompt`, `suggested_aspect_ratio`, and `style_keywords` (array).',
+    inputs: [
+      { name: 'concept', label: 'Image Concept', type: 'textarea', placeholder: 'e.g. Futuristic workspace with holographic analytics dashboards and sleek lighting', required: true },
+      { name: 'artStyle', label: 'Visual Style', type: 'select', options: [{ label: 'Photorealistic / Cinematic', value: 'cinematic' }, { label: '3D Render / Modern Tech', value: '3d' }, { label: 'Minimalist Vector Illustration', value: 'vector' }, { label: 'Editorial Magazine Photography', value: 'editorial' }] },
+    ],
+  },
+  'thumbnail-concept': {
+    id: 'thumbnail-concept',
+    name: 'Thumbnail Visual Blueprint',
+    category: 'images',
+    description: 'High-contrast visual concepts for YouTube thumbnails with text placement.',
+    creditCost: 1,
+    provider: 'openrouter',
+    systemPrompt: 'You are a visual YouTube director. Output JSON with `primary_visual_subject`, `facial_expression_or_focus`, `background_elements`, `text_overlay_words` (max 3-4 words), and `color_contrast_palette`.',
+    inputs: [
+      { name: 'videoTitle', label: 'Video Title or Hook', type: 'text', placeholder: 'e.g. Why Everyone Is Quitting Remote Work', required: true },
+    ],
   },
 };

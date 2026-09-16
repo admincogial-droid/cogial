@@ -4,65 +4,97 @@ import { AIToolConfig } from '@/config/ai-tools';
 import { supabase } from '@/lib/supabase';
 import { useWorkspace } from '@/context/WorkspaceContext';
 import { toast } from 'sonner';
-import { Loader2, Sparkles, Copy, Save, Download, RotateCcw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2, Sparkles, Copy, Save, Download, RotateCcw, Check } from 'lucide-react';
 
 export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
   const { workspace, credits, refreshWorkspace } = useWorkspace();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const onSubmit = async (data: any) => {
+  const { register, handleSubmit } = useForm();
+
+  const onSubmit = async (data: Record<string, string>) => {
     if (!workspace) return toast.error('No active workspace');
-    if (credits < tool.creditCost) return toast.error('Insufficient credits for this generation');
+    if (credits < tool.creditCost) return toast.error(`Insufficient credits. Need ${tool.creditCost}, have ${credits}.`);
 
     setIsGenerating(true);
     setResult(null);
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-${tool.provider}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data: resData, error } = await supabase.functions.invoke('ai-generate', {
+        body: {
+          type: tool.id,
           workspaceId: workspace.id,
-          toolId: tool.id,
-          model: 'google/gemini-2.5-flash', // Using the fast/default model
           systemPrompt: tool.systemPrompt,
-          userPrompt: JSON.stringify(data),
+          userPrompt: `Generate output for the following tool: "${tool.name}".\nInputs:\n${Object.entries(data).map(([k, v]) => `${k}: ${v}`).join('\n')}`,
           creditCost: tool.creditCost,
-          inputData: data
-        })
+          responseFormatJson: true,
+        }
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Generation failed');
+      if (error || !resData?.success) {
+        throw new Error(resData?.error?.message || error?.message || 'Generation failed');
       }
 
-      const resData = await response.json();
-      setResult(resData.result);
-      
+      setResult(resData.data.content);
       toast.success('Generation complete!');
-      await refreshWorkspace(); // Sync the new credit balance
-    } catch (error: any) {
-      toast.error(error.message || 'Something went wrong');
+      await refreshWorkspace();
+    } catch (error: unknown) {
+      toast.error((error as Error).message || 'Something went wrong');
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const getResultText = (): string => {
+    if (!result) return '';
+    return Object.entries(result)
+      .map(([key, value]) => {
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (Array.isArray(value)) {
+          return `${label}:\n${value.map((v: unknown, i: number) => `  ${i + 1}. ${v}`).join('\n')}`;
+        }
+        return `${label}:\n${value}`;
+      })
+      .join('\n\n');
+  };
+
   const copyToClipboard = () => {
-    if (result) {
-      navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+    const text = getResultText();
+    if (text) {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
       toast.success('Copied to clipboard');
     }
+  };
+
+  const downloadResult = () => {
+    const text = getResultText();
+    if (!text) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${tool.id}-result.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const saveToLibrary = async () => {
+    if (!result || !workspace) return;
+    const text = getResultText();
+    const { error } = await supabase.from('contents').insert({
+      workspace_id: workspace.id,
+      title: `${tool.name} — ${new Date().toLocaleDateString()}`,
+      type: tool.category,
+      status: 'draft',
+      body: text,
+      word_count: text.split(/\s+/).filter(Boolean).length,
+    });
+    if (error) toast.error('Failed to save');
+    else toast.success('Saved to Content Library');
   };
 
   return (
@@ -80,7 +112,10 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex-1">
           {tool.inputs.map(input => (
             <div key={input.name}>
-              <label className="block text-xs font-semibold mb-1.5">{input.label}</label>
+              <label className="block text-xs font-semibold mb-1.5">
+                {input.label}
+                {input.required && <span className="text-destructive ml-1">*</span>}
+              </label>
               {input.type === 'textarea' ? (
                 <textarea
                   {...register(input.name, { required: input.required })}
@@ -109,12 +144,12 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
 
           <div className="pt-4 mt-4 border-t border-border">
             <div className="flex justify-between items-center text-xs text-muted-foreground mb-4">
-              <span>Estimated cost:</span>
+              <span>Cost:</span>
               <span className="font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                 {tool.creditCost} credits
               </span>
             </div>
-            
+
             <button
               type="submit"
               disabled={isGenerating}
@@ -136,41 +171,81 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
           <h3 className="font-semibold text-sm">Result</h3>
           {result && (
             <div className="flex items-center gap-2">
-              <button onClick={copyToClipboard} className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Copy">
-                <Copy size={16} />
+              <button onClick={copyToClipboard}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
+                {copied ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
+                {copied ? 'Copied' : 'Copy'}
               </button>
-              <button className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Save to Library">
-                <Save size={16} />
+              <button onClick={saveToLibrary}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
+                <Save size={13} /> Save
               </button>
-              <button className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Download">
-                <Download size={16} />
+              <button onClick={downloadResult}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
+                <Download size={13} /> Download
               </button>
-              <button onClick={handleSubmit(onSubmit)} className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Regenerate">
-                <RotateCcw size={16} />
+              <button onClick={() => handleSubmit(onSubmit)()}
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
+                <RotateCcw size={13} /> Redo
               </button>
             </div>
           )}
         </div>
-        
+
         <div className="flex-1 p-6 overflow-y-auto bg-background/50">
           {isGenerating ? (
             <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-4">
               <Loader2 className="animate-spin w-8 h-8 text-primary" />
-              <p className="animate-pulse">Crafting your content...</p>
+              <p className="animate-pulse text-sm">Crafting your content...</p>
+              <p className="text-xs">This usually takes 5-15 seconds</p>
             </div>
           ) : result ? (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              {/* Basic JSON rendering for now. In production, we'd render this based on tool schema */}
-              <pre className="p-4 rounded-lg bg-muted text-xs overflow-x-auto">
-                {JSON.stringify(result, null, 2)}
-              </pre>
+            <div className="space-y-6">
+              {Object.entries(result).map(([key, value]) => {
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                if (!value || (Array.isArray(value) && value.length === 0)) return null;
+                return (
+                  <div key={key}>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      {label}
+                    </h4>
+                    {Array.isArray(value) ? (
+                      <ul className="space-y-1.5">
+                        {(value as unknown[]).map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            {typeof item === 'string' ? (
+                              <>
+                                <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                                <span>{item}</span>
+                              </>
+                            ) : (
+                              <pre className="text-xs bg-muted px-2 py-1 rounded overflow-x-auto w-full">
+                                {JSON.stringify(item, null, 2)}
+                              </pre>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : typeof value === 'string' ? (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{value}</p>
+                    ) : typeof value === 'object' ? (
+                      <pre className="text-xs bg-muted px-3 py-2 rounded-lg overflow-x-auto">
+                        {JSON.stringify(value, null, 2)}
+                      </pre>
+                    ) : (
+                      <p className="text-sm">{String(value)}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Sparkles className="w-8 h-8 opacity-50" />
               </div>
-              <p>Fill out the form and click generate to see the magic.</p>
+              <p className="text-sm">Fill out the form and click Generate</p>
+              <p className="text-xs mt-1 text-muted-foreground/60">Your results will appear here</p>
             </div>
           )}
         </div>

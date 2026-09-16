@@ -1,12 +1,14 @@
-import { Bell, Search, Sun, Moon, Command } from 'lucide-react';
+import { Bell, Search, Sun, Moon, Command, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useWorkspace } from '@/context/WorkspaceContext';
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import type { Notification } from '@/types';
 import { formatRelativeTime } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CommandSearchDialog } from './CommandSearchDialog';
 
 function ThemeToggle() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
@@ -80,23 +82,58 @@ function NotificationBell() {
 }
 
 export default function TopBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const showBack = location.pathname !== '/dashboard';
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <header className="h-14 border-b border-border bg-background/95 backdrop-blur sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3">
-      <div className="flex-1 flex items-center gap-3">
-        {/* Spacer for mobile menu button */}
-        <div className="w-8 lg:hidden" />
-        <button className="hidden md:flex items-center gap-2 h-8 px-3 rounded-lg border border-border bg-muted/50 text-sm text-muted-foreground hover:bg-accent transition-colors w-64">
-          <Search size={14} />
-          <span className="flex-1 text-left">Search...</span>
-          <kbd className="flex items-center gap-1 text-[10px] bg-background border border-border rounded px-1.5 py-0.5">
-            <Command size={9} /><span>K</span>
-          </kbd>
-        </button>
-      </div>
-      <div className="flex items-center gap-1">
-        <ThemeToggle />
-        <NotificationBell />
-      </div>
-    </header>
+    <>
+      <header className="h-14 border-b border-border bg-background/95 backdrop-blur sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3">
+        <div className="flex-1 flex items-center gap-3">
+          {/* Spacer for mobile menu button */}
+          <div className="w-8 lg:hidden" />
+          
+          {showBack && (
+            <button 
+              onClick={() => navigate(-1)} 
+              className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground transition-colors"
+              title="Go back"
+            >
+              <ArrowLeft size={16} />
+            </button>
+          )}
+
+          <button 
+            onClick={() => setSearchOpen(true)}
+            className="hidden md:flex items-center gap-2 h-8 px-3 rounded-lg border border-border bg-muted/50 text-sm text-muted-foreground hover:bg-accent transition-colors w-64 text-left cursor-pointer"
+          >
+            <Search size={14} />
+            <span className="flex-1 text-left">Search...</span>
+            <kbd className="flex items-center gap-1 text-[10px] bg-background border border-border rounded px-1.5 py-0.5">
+              <Command size={9} /><span>K</span>
+            </kbd>
+          </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <NotificationBell />
+        </div>
+      </header>
+
+      <CommandSearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }
