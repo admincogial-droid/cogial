@@ -52,6 +52,9 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
     return Object.entries(result)
       .map(([key, value]) => {
         const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (typeof value === 'string' && value.startsWith('data:image/')) {
+          return `${label}: [Generated AI Image]`;
+        }
         if (Array.isArray(value)) {
           return `${label}:\n${value.map((v: unknown, i: number) => `  ${i + 1}. ${v}`).join('\n')}`;
         }
@@ -85,12 +88,15 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
   const saveToLibrary = async () => {
     if (!result || !workspace) return;
     const text = getResultText();
+    const imageVal = result.image || result.image_url || Object.values(result).find(v => typeof v === 'string' && (v.startsWith('data:image/') || v.startsWith('http')));
+
     const { error } = await supabase.from('contents').insert({
       workspace_id: workspace.id,
       title: `${tool.name} — ${new Date().toLocaleDateString()}`,
       type: tool.category,
       status: 'draft',
       body: text,
+      featured_image: typeof imageVal === 'string' ? imageVal : null,
       word_count: text.split(/\s+/).filter(Boolean).length,
     });
     if (error) toast.error('Failed to save');
@@ -227,7 +233,22 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
                         ))}
                       </ul>
                     ) : typeof value === 'string' ? (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{value}</p>
+                      value.startsWith('data:image/') || /^https?:\/\/.*\.(png|jpg|jpeg|webp|gif)/i.test(value) ? (
+                        <div className="mt-2 space-y-3">
+                          <div className="relative group max-w-xl rounded-xl overflow-hidden border border-border shadow-md bg-muted/40">
+                            <img src={value} alt={label} className="w-full h-auto object-cover max-h-[480px]" />
+                          </div>
+                          <a
+                            href={value}
+                            download={`pressline-${tool.id}-${Date.now()}.png`}
+                            className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                          >
+                            <Download size={13} /> Download Image
+                          </a>
+                        </div>
+                      ) : (
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{value}</p>
+                      )
                     ) : typeof value === 'object' ? (
                       <pre className="text-xs bg-muted px-3 py-2 rounded-lg overflow-x-auto">
                         {JSON.stringify(value, null, 2)}

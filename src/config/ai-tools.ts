@@ -351,6 +351,46 @@ export const AI_TOOLS: Record<string, AIToolConfig> = {
   },
 
   // ─── IMAGES ───────────────────────────────────────────────────────
+  'image-generator': {
+    id: 'image-generator',
+    name: 'AI Image Generator',
+    category: 'images',
+    description: 'Generate stunning high-definition visual assets using flagship AI image models.',
+    creditCost: 3,
+    provider: 'openrouter',
+    inputs: [
+      { name: 'prompt', label: 'Image Prompt / Concept', type: 'textarea', placeholder: 'e.g. Minimalist glass skyscraper with rooftop neon gardens at twilight, cinematic 8k', required: true },
+      { name: 'artStyle', label: 'Art Style', type: 'select', options: [
+        { label: 'Photorealistic & Cinematic', value: 'photorealistic, cinematic lighting, 8k resolution, professional photography' },
+        { label: '3D Render & Tech Modern', value: '3D octane render, sleek modern tech aesthetic, studio lighting' },
+        { label: 'Minimalist Vector Art', value: 'clean minimalist vector illustration, modern flat design, Behance style' },
+        { label: 'Editorial Magazine Photography', value: 'commercial editorial studio photography, clean crisp composition' },
+        { label: 'Digital Concept Art', value: 'rich digital concept art, vibrant color grading, high detail' }
+      ] },
+      { name: 'aspectRatio', label: 'Aspect Ratio', type: 'select', options: [
+        { label: '1:1 Square (Social / Profile)', value: '1:1' },
+        { label: '16:9 Landscape (Blog Header / YouTube)', value: '16:9' },
+        { label: '9:16 Portrait (Reels / Stories / Mobile)', value: '9:16' },
+        { label: '4:3 Standard', value: '4:3' }
+      ] },
+    ],
+  },
+  'thumbnail-generator': {
+    id: 'thumbnail-generator',
+    name: 'YouTube & Blog Thumbnail Creator',
+    category: 'images',
+    description: 'Generate eye-catching, high-contrast thumbnails designed for maximum click-through rate.',
+    creditCost: 3,
+    provider: 'openrouter',
+    inputs: [
+      { name: 'videoTitle', label: 'Video or Article Title', type: 'text', placeholder: 'e.g. How to Build an AI SaaS in 48 Hours', required: true },
+      { name: 'visualDetails', label: 'Visual Focus / Hook', type: 'textarea', placeholder: 'e.g. Glowing holographic laptop, intense focus, bold neon accents on dark background' },
+      { name: 'aspectRatio', label: 'Aspect Ratio', type: 'select', options: [
+        { label: '16:9 (YouTube & Blog Featured Image)', value: '16:9' },
+        { label: '1:1 (Instagram & Community Feed)', value: '1:1' }
+      ] },
+    ],
+  },
   'image-prompt': {
     id: 'image-prompt',
     name: 'AI Image Prompt Generator',

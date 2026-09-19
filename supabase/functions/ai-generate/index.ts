@@ -153,6 +153,83 @@ async function callOpenRouter(opts: AIRequestOptions): Promise<AIResponseData> {
   throw lastError || new Error('All AI generation attempts failed');
 }
 
+// ─── Image Generation Caller with Fallback ────────────────────────
+
+interface ImageGenerationResult {
+  imageUrl: string;
+  modelUsed: string;
+}
+
+async function callOpenRouterImage(prompt: string, opts?: { model?: string; aspectRatio?: string }): Promise<ImageGenerationResult> {
+  const apiKey = Deno.env.get('OPENROUTER_API_KEY');
+  if (!apiKey) {
+    throw new Error('AI provider not configured: OPENROUTER_API_KEY missing in environment');
+  }
+
+  // Best tier model for image generation: OpenAI Sunburst & Gemini Nano Banana Image
+  const primaryModel = opts?.model || Deno.env.get('OPENROUTER_IMAGE_MODEL') || 'openai/gpt-image-2.5-sunburst';
+  const fallbackModel = Deno.env.get('OPENROUTER_IMAGE_FALLBACK_MODEL') || 'google/gemini-2.5-flash-image';
+  const siteUrl = Deno.env.get('OPENROUTER_SITE_URL') || 'https://pressline.ai';
+  const appName = Deno.env.get('OPENROUTER_APP_NAME') || 'PressLine';
+
+  const modelsToTry = [primaryModel];
+  if (fallbackModel && fallbackModel !== primaryModel) {
+    modelsToTry.push(fallbackModel);
+  }
+
+  let lastError: Error | null = null;
+  for (const modelToUse of modelsToTry) {
+    try {
+      const payload: Record<string, unknown> = {
+        model: modelToUse,
+        prompt,
+      };
+      if (opts?.aspectRatio) {
+        payload.aspect_ratio = opts.aspectRatio;
+      }
+
+      const res = await fetch('https://openrouter.ai/api/v1/images', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': siteUrl,
+          'X-Title': appName,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const imgItem = data.data?.[0];
+        if (imgItem) {
+          const mime = imgItem.media_type || 'image/png';
+          const imageUrl = imgItem.url || (imgItem.b64_json ? `data:${mime};base64,${imgItem.b64_json}` : '');
+          if (imageUrl) {
+            return {
+              imageUrl,
+              modelUsed: modelToUse,
+            };
+          }
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        lastError = new Error(errData.error?.message || `Image provider status ${res.status}`);
+      }
+    } catch (e) {
+      lastError = e as Error;
+    }
+  }
+
+  throw lastError || new Error('Image generation failed on all available models');
+}
+
+function getOptimalModelForTask(taskType: string, explicitModel?: string): string {
+  if (explicitModel) return explicitModel;
+  // Use ultra-low cost, high-speed model (~$0.075/1M tokens)
+  return Deno.env.get('OPENROUTER_MODEL') || 'google/gemini-2.5-flash';
+}
+
 // ─── Main Edge Function Handler ───────────────────────────────────
 
 serve(async (req) => {
@@ -281,6 +358,63 @@ serve(async (req) => {
       }
     }
 
+    // ─── Image Generation Handler ───
+    const isImageTask = type === 'image-generator' || type === 'thumbnail-generator' || type === 'image';
+    if (isImageTask) {
+      const rawPrompt = inputs?.prompt || inputs?.concept || inputs?.videoTitle || userPrompt || topic || 'High quality cinematic visualization';
+      const style = inputs?.artStyle || inputs?.style || inputs?.visualDetails || '';
+      const fullPrompt = style ? `${rawPrompt}. Style: ${style}` : rawPrompt;
+      const aspectRatio = inputs?.aspectRatio || '1:1';
+
+      const imgResult = await callOpenRouterImage(fullPrompt, {
+        model,
+        aspectRatio,
+      });
+
+      const duration = Date.now() - startTime;
+      const imagePayload = {
+        image: imgResult.imageUrl,
+        prompt: fullPrompt,
+        model: imgResult.modelUsed,
+      };
+
+      const genRecordId = generationId || crypto.randomUUID();
+      await clientSupabase.from('ai_generations').upsert({
+        id: genRecordId,
+        workspace_id: workspaceId,
+        user_id: user.id,
+        tool_id: type || 'image-generator',
+        operation: type || 'image_generation',
+        model: imgResult.modelUsed,
+        provider: 'openrouter',
+        input_data: { prompt: fullPrompt, aspectRatio, type },
+        output_data: imagePayload,
+        status: 'completed',
+        credits_reserved: deductedCredits,
+        credits_used: deductedCredits,
+        input_tokens: 0,
+        output_tokens: 0,
+        total_tokens: 0,
+        duration_ms: duration,
+        completed_at: new Date().toISOString(),
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            content: imagePayload,
+            raw: imagePayload.image,
+            output_tokens: 0,
+            model: imgResult.modelUsed,
+            duration_ms: duration,
+            deducted_credits: deductedCredits,
+          },
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Build the AI user prompt if not directly provided
     let finalPrompt = userPrompt;
     if (!finalPrompt) {
@@ -304,12 +438,13 @@ serve(async (req) => {
     }
 
     const calculatedTokens = maxTokens ?? ({ short: 900, medium: 2200, long: 4000 }[length as string] || 2500);
+    const chosenModel = getOptimalModelForTask(type, model);
 
     // Call OpenRouter
     const aiResult = await callOpenRouter({
       systemPrompt,
       userPrompt: finalPrompt,
-      model,
+      model: chosenModel,
       temperature,
       maxTokens: calculatedTokens,
       responseFormatJson,

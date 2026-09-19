@@ -19,17 +19,23 @@ supabase functions deploy
 ```
 
 ## 3. Set Edge Function Secrets
-You must configure the environment secrets in Supabase for the AI routing and payments to work.
+You must configure the environment secrets in Supabase for the AI routing and image generation to work.
 
-Run the following commands using the Supabase CLI (or add them manually via the Supabase Dashboard -> Edge Functions -> Secrets):
+### Recommended (No CLI required — Web Dashboard):
+1. Go to your [Supabase Project Dashboard](https://supabase.com/dashboard/project/sbndtgrkrrdurchmsreq).
+2. Click **Edge Functions** on the left menu (or **Project Settings** > **Configuration** > **Edge Functions**).
+3. Click **Secrets** > **Add new secret**:
+   - `OPENROUTER_API_KEY`: `your_openrouter_api_key`
+   - (Optional) `OPENROUTER_MODEL`: `google/gemini-2.5-flash` (ultra-low cost default)
+   - (Optional) `OPENROUTER_IMAGE_MODEL`: `openai/gpt-image-2.5-sunburst` (flagship image model)
+4. Click **Save**.
 
+### Alternative: Using Supabase CLI via `npx`
+If you do not have `supabase` installed globally, prepend `npx`:
 ```bash
-# Add your OpenRouter API key for AI features
-supabase secrets set OPENROUTER_API_KEY=your_openrouter_api_key
-
-# (Optional) Add Stripe keys if you are using billing
-supabase secrets set STRIPE_SECRET_KEY=sk_test_...
-supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+npx supabase secrets set OPENROUTER_API_KEY=your_openrouter_api_key
+npx supabase secrets set OPENROUTER_MODEL=google/gemini-2.5-flash
+npx supabase secrets set OPENROUTER_IMAGE_MODEL=openai/gpt-image-2.5-sunburst
 ```
 
 ## 4. Build and Deploy Frontend
