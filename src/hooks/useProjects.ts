@@ -37,3 +37,60 @@ export function useProject(projectId: string | undefined) {
     enabled: Boolean(projectId),
   });
 }
+
+export function useCreateProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: Partial<Project> & { workspace_id: string; name: string }) => {
+      const { data, error } = await supabase
+        .from('projects')
+        .insert(payload)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Project;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['projects', variables.workspace_id] });
+    },
+  });
+}
+
+export function useUpdateProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Project> }) => {
+      const { data, error } = await supabase
+        .from('projects')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Project;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['project', data.id] });
+      queryClient.invalidateQueries({ queryKey: ['projects', data.workspace_id] });
+    },
+  });
+}
+
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, workspaceId }: { id: string; workspaceId: string }) => {
+      const { error } = await supabase.from('projects').delete().eq('id', id);
+      if (error) throw error;
+      return { id, workspaceId };
+    },
+    onSuccess: ({ workspaceId }) => {
+      queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] });
+    },
+  });
+}

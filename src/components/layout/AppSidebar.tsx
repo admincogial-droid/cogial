@@ -217,7 +217,7 @@ export default function AppSidebar() {
       {/* Mobile toggle button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-40 lg:hidden p-2 rounded-lg bg-card border border-border shadow-sm"
+        className="fixed top-[11px] left-4 z-40 lg:hidden p-2 rounded-lg bg-card border border-border shadow-sm"
       >
         <Menu size={18} />
       </button>

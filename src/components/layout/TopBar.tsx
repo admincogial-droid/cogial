@@ -104,7 +104,7 @@ export default function TopBar() {
       <header className="h-14 border-b border-border bg-background/95 backdrop-blur sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3">
         <div className="flex-1 flex items-center gap-3">
           {/* Spacer for mobile menu button */}
-          <div className="w-8 lg:hidden" />
+          <div className="w-10 lg:hidden" />
           
           {showBack && (
             <button 
