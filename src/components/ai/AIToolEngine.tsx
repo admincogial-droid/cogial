@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useWorkspace } from '@/context/WorkspaceContext';
 import { toast } from 'sonner';
 import { Loader2, Sparkles, Copy, Save, Download, RotateCcw, Check } from 'lucide-react';
+import { cleanAiOutput } from '@/lib/text-cleaner';
 
 export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
   const { workspace, credits, refreshWorkspace } = useWorkspace();
@@ -37,7 +38,7 @@ export function AIToolEngine({ tool }: { tool: AIToolConfig }) {
         throw new Error(resData?.error?.message || error?.message || 'Generation failed');
       }
 
-      setResult(resData.data.content);
+      setResult(cleanAiOutput(resData.data.content));
       toast.success('Generation complete!');
       await refreshWorkspace();
     } catch (error: unknown) {

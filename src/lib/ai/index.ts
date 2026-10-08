@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { cleanAiOutput } from '@/lib/text-cleaner';
 
 export interface GenerateOptions {
   workspaceId: string;
@@ -81,9 +82,12 @@ export async function generateAI<T = any>(options: GenerateOptions): Promise<Gen
       );
     }
 
+    const cleanedContent = cleanAiOutput(data.data.content) as T;
+    const cleanedRaw = typeof data.data.raw === 'string' ? cleanAiOutput(data.data.raw) : (typeof cleanedContent === 'string' ? cleanedContent : JSON.stringify(cleanedContent));
+
     return {
-      content: data.data.content as T,
-      raw: data.data.raw || (typeof data.data.content === 'string' ? data.data.content : JSON.stringify(data.data.content)),
+      content: cleanedContent,
+      raw: cleanedRaw,
       outputTokens: data.data.output_tokens || 0,
       model: data.data.model || 'openrouter',
       durationMs: data.data.duration_ms || 0,

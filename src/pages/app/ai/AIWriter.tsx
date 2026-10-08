@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useBrandVoices } from '@/hooks/useBrandVoices';
 import { useProjects } from '@/hooks/useProjects';
 import { generateAI } from '@/lib/ai';
+import { cleanAiText } from '@/lib/text-cleaner';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
@@ -211,7 +212,7 @@ export default function AIWriter() {
         setTitle(topic.replace(/^["']|["']$/g, '').slice(0, 100));
       }
 
-      setBody(result.content);
+      setBody(cleanAiText(result.content));
       toast.success(generateOutlineOnly ? 'Outline generated!' : 'Article drafted successfully!');
       await refreshWorkspace();
       setTimeout(() => saveToDb(false, true), 300);
@@ -241,7 +242,7 @@ export default function AIWriter() {
         brandVoiceId: brandVoiceId || undefined,
       });
 
-      setBody(result.content);
+      setBody(cleanAiText(result.content));
       toast.success(`${action} applied!`);
       await refreshWorkspace();
     } catch (err: unknown) {

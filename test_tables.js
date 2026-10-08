@@ -15,7 +15,9 @@ async function test() {
   ];
 
   for (const table of tables) {
-    const { error } = await supabase.from(table).select('id').limit(1);
+    const col = table === 'credit_balances' ? 'workspace_id' : 'id';
+    const targetTable = table === 'ticket_messages' ? 'support_messages' : table;
+    const { error } = await supabase.from(targetTable).select(col).limit(1);
     if (error && error.code !== 'PGRST116') {
       console.log(`Table ${table} error:`, error.message);
     } else {

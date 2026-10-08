@@ -28,7 +28,37 @@ When a brand voice is provided, follow it consistently.
 When content constraints are provided, obey them.
 When output is requested as structured JSON, return only the required schema.
 Never add markdown fences around structured JSON.
-Never add explanatory text outside the requested output format.`;
+Never add explanatory text outside the requested output format.
+CRITICAL FORMATTING INSTRUCTION: Do NOT use markdown asterisks (*, **, ***) in any part of the text or titles. Do not use asterisks for bolding or emphasis. Use clean text with proper capitalization for headings. For bullet lists, use clean bullet dots (•) or numbered lists (1. 2. 3.), never asterisk bullets (*). Output must be completely clean and free of asterisk symbols.`;
+
+function cleanAiTextServer(raw: unknown): unknown {
+  if (raw === null || raw === undefined) return '';
+  if (typeof raw === 'string') {
+    if (raw.startsWith('data:image/') || /^https?:\/\/.*\.(png|jpg|jpeg|webp|gif)/i.test(raw)) return raw;
+    let text = raw;
+    text = text.replace(/\*{3}([^\*]+?)\*{3}/g, '$1');
+    text = text.replace(/\*{2}([^\*]+?)\*{2}/g, '$1');
+    text = text.replace(/(^|[^\w\*])\*([^\*\n]+?)\*([^\w\*]|$)/g, '$1$2$3');
+    text = text.replace(/^[ \t]*\*+[ \t]+/gm, '• ');
+    text = text.replace(/^[ \t]*-+[ \t]+/gm, '• ');
+    text = text.replace(/^[ \t]*#{1,6}[ \t]+/gm, '');
+    text = text.replace(/(?<!\d)\*(?!\d)/g, '');
+    text = text.replace(/^```[a-zA-Z0-9_-]*\n?/gm, '').replace(/\n?```$/gm, '');
+    text = text.replace(/\n{3,}/g, '\n\n');
+    return text.trim();
+  }
+  if (Array.isArray(raw)) {
+    return raw.map(cleanAiTextServer);
+  }
+  if (typeof raw === 'object') {
+    const res: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+      res[k] = cleanAiTextServer(v);
+    }
+    return res;
+  }
+  return raw;
+}
 
 interface AIRequestOptions {
   systemPrompt?: string;
@@ -120,9 +150,12 @@ async function callOpenRouter(opts: AIRequestOptions): Promise<AIResponseData> {
             }
           }
 
+          const sanitizedContent = cleanAiTextServer(rawContent) as string;
+          const sanitizedJson = parsedJson ? cleanAiTextServer(parsedJson) : undefined;
+
           return {
-            content: rawContent,
-            parsedJson,
+            content: sanitizedContent,
+            parsedJson: sanitizedJson,
             inputTokens,
             outputTokens,
             totalTokens: inputTokens + outputTokens,

@@ -17,7 +17,7 @@ const ROLE_CONFIG = {
 };
 
 export default function TeamPage() {
-  const { workspace, members, canAdmin } = useWorkspace();
+  const { workspace, members, canAdmin, refreshWorkspace } = useWorkspace();
   const { user } = useAuth();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
@@ -42,7 +42,7 @@ export default function TeamPage() {
     if (!confirm('Remove this member?')) return;
     const { error } = await supabase.from('workspace_members').delete().eq('id', memberId);
     if (error) toast.error(error.message);
-    else { toast.success('Member removed'); window.location.reload(); }
+    else { toast.success('Member removed'); await refreshWorkspace(); }
   };
 
   return (

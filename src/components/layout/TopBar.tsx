@@ -126,6 +126,14 @@ export default function TopBar() {
               <Command size={9} /><span>K</span>
             </kbd>
           </button>
+
+          <button 
+            onClick={() => setSearchOpen(true)}
+            className="flex md:hidden p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+            title="Search"
+          >
+            <Search size={16} />
+          </button>
         </div>
         <div className="flex items-center gap-1">
           <ThemeToggle />

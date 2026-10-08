@@ -64,14 +64,18 @@ export default function CompetitorAnalysis() {
         throw new Error(resData?.error?.message || error?.message || 'Analysis failed');
       }
 
-      // Try parsing the returned content
+      // Safely parse or use returned content
       let result;
-      try {
-        const cleaned = resData.data.content.replace(/^```json\n?/, '').replace(/```$/, '').trim();
-        result = JSON.parse(cleaned);
-      } catch (parseError) {
-        console.error('Failed to parse AI response as JSON', resData.data.content);
-        throw new Error('AI returned an invalid format. Please try again.');
+      if (typeof resData.data.content === 'object' && resData.data.content !== null) {
+        result = resData.data.content;
+      } else {
+        try {
+          const cleaned = String(resData.data.content).replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
+          result = JSON.parse(cleaned);
+        } catch (_) {
+          console.error('Failed to parse AI response as JSON', resData.data.content);
+          result = { domain_overview: String(resData.data.content) };
+        }
       }
 
       await supabase.from('competitor_analyses')

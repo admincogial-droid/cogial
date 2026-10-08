@@ -4,6 +4,7 @@ import { useWorkspace } from '@/context/WorkspaceContext';
 import { useAuth } from '@/context/AuthContext';
 import { useBrandVoices } from '@/hooks/useBrandVoices';
 import { generateAI } from '@/lib/ai';
+import { cleanAiText } from '@/lib/text-cleaner';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
@@ -166,7 +167,7 @@ export default function BulkGenerator() {
               title: row.topic,
               type: 'article',
               status: 'generated',
-              body: result.content,
+              body: cleanAiText(result.content),
               word_count: wordCount,
               primary_keyword: row.keyword || null,
             })
