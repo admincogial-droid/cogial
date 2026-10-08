@@ -180,7 +180,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         </div>
         <div className="h-1.5 bg-sidebar-accent rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${100 - creditPct}%` }} />
+            style={{ width: `${creditsLimit > 0 ? Math.min(Math.max((credits / creditsLimit) * 100, credits > 0 ? 4 : 0), 100) : 0}%` }} />
         </div>
         {creditPct > 80 && (
           <NavLink to="/dashboard/billing"
@@ -198,7 +198,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium truncate">{profile?.full_name || user?.email}</p>
-            <p className="text-[10px] text-sidebar-foreground/50 capitalize">{profile?.plan ?? 'free'} plan</p>
+            <p className="text-[10px] text-sidebar-foreground/50 capitalize">{(workspace?.plan || profile?.plan || 'free')} plan</p>
           </div>
           <button onClick={handleSignOut} title="Sign out" className="text-sidebar-foreground/40 hover:text-destructive transition-colors">
             <LogOut size={14} />

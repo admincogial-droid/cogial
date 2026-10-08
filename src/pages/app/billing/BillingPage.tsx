@@ -58,7 +58,18 @@ export default function BillingPage() {
         billingCycle: billing,
         workspaceId: workspace.id,
         userId: user.id,
+        userEmail: user.email,
+        onPaymentSuccess: async () => {
+          toast.success(`Paddle payment confirmed! Upgraded to ${plan.name} plan.`);
+          await refreshWorkspace();
+          await loadData();
+        },
       });
+
+      if (res.openedOverlay) {
+        toast.info('Paddle secure checkout overlay opened.');
+        return;
+      }
 
       if (res.url) {
         // Paddle live checkout URL returned
@@ -68,7 +79,7 @@ export default function BillingPage() {
       }
 
       if (res.isVerificationPending) {
-        // Live Paddle account is in verification review, offer instant test upgrade
+        // Live Paddle account is in verification review
         setVerificationPendingModal({ open: true, plan });
         return;
       }
